@@ -3,7 +3,6 @@ package main
 import  (  
 	"fmt"
 	"sync"
-	"math"
 	"math/big"
 
 )
@@ -15,9 +14,10 @@ func NormalizeRandom(randomNum float64) int{
 	return RandomNum
 }
 func generateRandom(wg *sync.WaitGroup,channel chan int,seed int , size int){
-	period:= math.Pow(2,float64 (size))
+	period:= 8192
 	constant:=23
-	multiplicativeConstant:= 3 + 8*constant
+	multiplicativeConstant:= 3 + (8*constant)
+	fmt.Print("period",period)
 	for i:=0 ; i<size;i++{
 		num := (seed*multiplicativeConstant)% int(period) 
 		seed = num
