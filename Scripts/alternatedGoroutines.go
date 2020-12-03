@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/big"
 	"sync"
 )
 
@@ -24,6 +25,33 @@ func BubbleSort(randomArray []int) {
 		if cambio == false {
 			break
 		}
+	}
+}
+
+func InsertionSort(randomArray []int) {
+	var num1 = 1
+	var numAux = 0
+	var guardado = 0
+	for num1 < len(randomArray) {
+		numAux = num1
+		guardado = randomArray[num1]
+		var cambio = false
+		for numAux > 0 {
+			if guardado < randomArray[numAux-1] {
+				randomArray[numAux] = randomArray[numAux-1]
+				cambio = true
+			} else if cambio {
+				randomArray[numAux] = guardado
+				break
+			} else {
+				numAux = -1
+			}
+			if numAux-1 == 0 {
+				randomArray[numAux-1] = guardado
+			}
+			numAux--
+		}
+		num1++
 	}
 }
 
@@ -63,46 +91,51 @@ func createArray(wg *sync.WaitGroup, channel chan int, size int) {
 
 func main() {
 
-	// var seed int64
-	// for true {
-	// 	fmt.Println("Ingrese una semilla prima en el intervalo de 11 a 101")
-	// 	fmt.Scan(&seed)
-	// 	if (seed >= 11) && (seed <= 101) {
+	var seed int64
+	for true {
+		fmt.Println("Ingrese una semilla prima en el intervalo de 11 a 101")
+		fmt.Scan(&seed)
+		if (seed >= 11) && (seed <= 101) {
 
-	// 		if big.NewInt(seed).ProbablyPrime(0) {
-	// 			break
+			if big.NewInt(seed).ProbablyPrime(0) {
+				break
 
-	// 		} else {
+			} else {
 
-	// 			fmt.Println("Debe ingresar un número primo")
-	// 		}
+				fmt.Println("Debe ingresar un número primo")
+			}
 
-	// 	} else {
+		} else {
 
-	// 		fmt.Println("Debe ingresar un número entre 11 y 101")
-	// 	}
-	// }
-	// var size int
-	// for true {
-	// 	fmt.Println("Ingrese cuantos números desea [10,10000]")
-	// 	fmt.Scan(&size)
-	// 	if size >= 10 && seed <= 10000 {
-	// 		break
-	// 	} else {
-	// 		fmt.Println("El número debe estar en el intervalo de [10,10000]")
-	// 	}
-	// }
-	// randomch := make(chan int, 3)
+			fmt.Println("Debe ingresar un número entre 11 y 101")
+		}
+	}
+	var size int
+	for true {
+		fmt.Println("Ingrese cuantos números desea [10,10000]")
+		fmt.Scan(&size)
+		if size >= 10 && seed <= 10000 {
+			break
+		} else {
+			fmt.Println("El número debe estar en el intervalo de [10,10000]")
+		}
+	}
+	randomch := make(chan int, 3)
 
-	// var waitGroup sync.WaitGroup
-	// go generateRandom(&waitGroup, randomch, int(seed), size)
-	// go createArray(&waitGroup, randomch, size)
-	// waitGroup.Add(1)
-	// waitGroup.Wait()
-	// fmt.Println("Terminó")
+	var waitGroup sync.WaitGroup
+	go generateRandom(&waitGroup, randomch, int(seed), size)
+	go createArray(&waitGroup, randomch, size)
+	waitGroup.Add(1)
+	waitGroup.Wait()
+	fmt.Println("Terminó")
 
-	arr := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86, 12, 71, 11, 41, 10, 31, 57, 23, 87, 90, 48, 100, 43, 80, 42, 50, 86, 40, 61, 48, 73, 95, 69, 14, 78, 87, 14, 89, 91, 49, 91, 87, 36, 62, 8, 57, 46, 49, 9, 32, 98, 96, 42, 52, 61, 35, 97, 69, 51, 63, 87, 10, 55, 95, 79, 69, 45, 30, 23, 58, 58, 61, 77, 31, 37, 94, 47, 8, 41, 68, 89, 89, 45, 35, 1, 16, 18, 16, 65, 100, 58, 9, 74, 57, 27, 50, 92, 100, 19, 15}
-	BubbleSort(arr)
-	fmt.Println(arr)
+	//arr := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86}
+	//arr2 := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86}
+	// arr := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86, 12, 71, 11, 41, 10, 31, 57, 23, 87, 90, 48, 100, 43, 80, 42, 50, 86, 40, 61, 48, 73, 95, 69, 14, 78, 87, 14, 89, 91, 49, 91, 87, 36, 62, 8, 57, 46, 49, 9, 32, 98, 96, 42, 52, 61, 35, 97, 69, 51, 63, 87, 10, 55, 95, 79, 69, 45, 30, 23, 58, 58, 61, 77, 31, 37, 94, 47, 8, 41, 68, 89, 89, 45, 35, 1, 16, 18, 16, 65, 100, 58, 9, 74, 57, 27, 50, 92, 100, 19, 15}
+	// arr2 := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86, 12, 71, 11, 41, 10, 31, 57, 23, 87, 90, 48, 100, 43, 80, 42, 50, 86, 40, 61, 48, 73, 95, 69, 14, 78, 87, 14, 89, 91, 49, 91, 87, 36, 62, 8, 57, 46, 49, 9, 32, 98, 96, 42, 52, 61, 35, 97, 69, 51, 63, 87, 10, 55, 95, 79, 69, 45, 30, 23, 58, 58, 61, 77, 31, 37, 94, 47, 8, 41, 68, 89, 89, 45, 35, 1, 16, 18, 16, 65, 100, 58, 9, 74, 57, 27, 50, 92, 100, 19, 15}
+	// BubbleSort(arr)
+	// InsertionSort(arr2)
+	// fmt.Println(arr)
+	// fmt.Println(arr2)
 
 }
