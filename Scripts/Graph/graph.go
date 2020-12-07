@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/labstack/echo"
@@ -67,11 +69,50 @@ func simulate(c echo.Context) error {
 			Count: r1.Intn(100),
 		}
 		client.Trigger("visitorsCount", "addNumber", newVisitsData)
-	}, 5, true)
+	}, 500, true)
 
 	return c.String(http.StatusOK, "Simulation begun")
 }
 
+//Normaliza el numero dado en el rango de 0 a 31
+func NormalizeRandom(randomNum float64) int {
+	RandomNum := 0 + (int)(randomNum*((31-0)+1))
+	return RandomNum
+}
+
+//Genera un número aleatorio en el intervalo de [0,1[
+func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
+	period := 8192
+	constant := 23
+	multiplicativeConstant := 3 + (8 * constant)
+	for i := 0; i < size; i++ {
+		num := ((seed * multiplicativeConstant) + constant) % int(period)
+		seed = num
+		normalizedNum := float64(num) / float64(period-1)
+		randomNum := NormalizeRandom(normalizedNum)
+
+		channel <- randomNum
+		//Se pausa
+		<-channel
+
+	}
+}
+
+//Recibe un número aleatorio por medio de un canal y lo agrega a un array
+func createArray(wg *sync.WaitGroup, channel chan int, size int) {
+	randomArray := []int{}
+	randomNum := 0
+	for i := 0; i < size; i++ {
+		randomNum = <-channel
+		randomArray = append(randomArray, randomNum)
+		client.Trigger("visitorsCount", "addNumber", randomArray)
+		channel <- 0
+
+	}
+
+	defer wg.Done()
+
+}
 func main() {
 	// Echo instance
 	e := echo.New()
@@ -83,9 +124,9 @@ func main() {
 	// Define the HTTP routes
 	e.File("/", "Frontend/index.html")
 	e.File("/style.css", "Frontend/style.css")
-	e.File("/app.js", "Frontend/app.js")
+	e.File("/app1.js", "Frontend/app1.js")
 	e.GET("/simulate", simulate)
-
+	fmt.Println("hOLA")
 	// Start server
 	e.Logger.Fatal(e.Start(":9000"))
 }

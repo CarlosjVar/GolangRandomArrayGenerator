@@ -10,14 +10,18 @@ const pusher = new Pusher('7befe6ab035a03a2ada9', {
 const channel = pusher.subscribe('visitorsCount');
 
 channel.bind('addNumber', data => {
-  // if (newLineChart.data.labels.length > 15) {
-  //   newLineChart.data.labels.shift();  
-  //   newLineChart.data.datasets[0].data.shift();
-  // }
 
-  newLineChart.data.labels.push(data.Count);
-  newLineChart.data.datasets[0].data.push(data.Pages);
-  newLineChart.update();
+    console.log(data);
+    if (newLineChart.data.labels.length > 0) 
+    {
+         newLineChart.data.datasets[0].data.pop();
+         newLineChart.data.labels.pop();
+    }
+    newLineChart.reset();
+    console.log(data);
+    newLineChart.data.labels.push(data.Count);
+    newLineChart.data.datasets[0].data.push(data.Pages);
+    newLineChart.update();
 });
 
 function renderChart(userVisitsData) {
