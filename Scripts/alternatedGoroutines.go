@@ -70,6 +70,7 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
 		randomNum := NormalizeRandom(normalizedNum)
 
 		channel <- randomNum
+		//Se pausa
 		<-channel
 
 	}
@@ -120,7 +121,7 @@ func main() {
 			fmt.Println("El número debe estar en el intervalo de [10,10000]")
 		}
 	}
-	randomch := make(chan int, 3)
+	randomch := make(chan int, 1)
 
 	var waitGroup sync.WaitGroup
 	go generateRandom(&waitGroup, randomch, int(seed), size)
