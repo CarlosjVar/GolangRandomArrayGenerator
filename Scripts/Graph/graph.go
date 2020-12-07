@@ -60,7 +60,7 @@ func setInterval(ourFunc func(), milliseconds int, async bool) chan bool {
 	// a value to it to clear the interval
 	return clear
 }
-func simulate(c echo.Context) error {
+func simulateAux(c echo.Context) error {
 	setInterval(func() {
 		s1 := rand.NewSource(time.Now().UnixNano())
 		r1 := rand.New(s1)
@@ -71,6 +71,17 @@ func simulate(c echo.Context) error {
 		client.Trigger("visitorsCount", "addNumber", newVisitsData)
 	}, 500, true)
 
+	return c.String(http.StatusOK, "Simulation begun")
+}
+
+func simulate(c echo.Context) error {
+
+	var waitGroup sync.WaitGroup
+	randomch := make(chan int, 1)
+	go generateRandom(&waitGroup, randomch, 11, 2000)
+	go createArray(&waitGroup, randomch, 2000)
+	waitGroup.Add(1)
+	waitGroup.Wait()
 	return c.String(http.StatusOK, "Simulation begun")
 }
 
@@ -90,7 +101,6 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
 		seed = num
 		normalizedNum := float64(num) / float64(period-1)
 		randomNum := NormalizeRandom(normalizedNum)
-
 		channel <- randomNum
 		//Se pausa
 		<-channel
@@ -105,13 +115,11 @@ func createArray(wg *sync.WaitGroup, channel chan int, size int) {
 	for i := 0; i < size; i++ {
 		randomNum = <-channel
 		randomArray = append(randomArray, randomNum)
-		client.Trigger("visitorsCount", "addNumber", randomArray)
+		client.Trigger("randomNum", "addNumber", randomArray)
 		channel <- 0
 
 	}
-
 	defer wg.Done()
-
 }
 func main() {
 	// Echo instance

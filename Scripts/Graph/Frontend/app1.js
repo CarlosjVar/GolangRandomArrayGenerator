@@ -7,20 +7,21 @@ const pusher = new Pusher('7befe6ab035a03a2ada9', {
     encrypted: true
 });
 
-const channel = pusher.subscribe('visitorsCount');
+const channel = pusher.subscribe('randomNum');
+
 
 channel.bind('addNumber', data => {
 
-    console.log(data);
-    if (newLineChart.data.labels.length > 0) 
+    if (newLineChart.data.datasets[0].data.length > 0) 
     {
-         newLineChart.data.datasets[0].data.pop();
-         newLineChart.data.labels.pop();
+            newLineChart.data.datasets[0].data=[]
+            newLineChart.data.labels=[]
     }
-    newLineChart.reset();
-    console.log(data);
-    newLineChart.data.labels.push(data.Count);
-    newLineChart.data.datasets[0].data.push(data.Pages);
+    data.forEach(function (value, i){
+        
+        newLineChart.data.labels.push(i+1);
+        newLineChart.data.datasets[0].data.push(value);
+    });
     newLineChart.update();
 });
 
@@ -40,7 +41,7 @@ var chartConfig = {
   labels: [],
   datasets: [
      {
-        label: "Realtime User Analytics",
+        label: "Magnitud de los números pseudoaleatorios",
         fill: false,
         lineTension: 0.1,
         backgroundColor: "rgba(75,192,192,0.4)",

@@ -1,7 +1,7 @@
 <!DOCTYPE>
 <html>
   <head>
-      <title>Realtime User Analytics</title>
+      <title>Generación de números pseudoaleatorios</title>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:200">
       <link rel="stylesheet" href="./style.css">
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
@@ -11,11 +11,15 @@
   <body>
 
       <section class="subheader">
-          <h2>Realtime User Traffic Analytics</h2>
-          <button id="getUpdates" class="btn-primary"> Simulate user visits</button>
+          <h2>Generación de números pseudoaleatorios</h2>
+          <label for="Cantidad">Cantidad de números</label>
+          <input type="number" id="Cantidad" name="Cantidad"><br>
+          <label for=Semilla >Semilla de generación</label>
+          <input type="number" id="Semilla" name="Semilla"><br>
+          <button id="getUpdates" class="btn-primary"> Comenzar Generación</button>
       </section>
 
-      <section width="500px" style="margin:0 auto;width: 100%;max-width: 800px">    
+      <section width="500px" style="margin:0 auto;width: 100%;max-width: 1400">    
           <canvas id="realtimeChart"></canvas>
       </section>
 
