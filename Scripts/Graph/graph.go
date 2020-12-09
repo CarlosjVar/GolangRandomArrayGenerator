@@ -78,8 +78,8 @@ func simulate(c echo.Context) error {
 
 	var waitGroup sync.WaitGroup
 	randomch := make(chan int, 1)
-	go generateRandom(&waitGroup, randomch, 11, 2000)
-	go createArray(&waitGroup, randomch, 2000)
+	go generateRandom(&waitGroup, randomch, 11, 100)
+	go createArray(&waitGroup, randomch, 100)
 	waitGroup.Add(1)
 	waitGroup.Wait()
 	return c.String(http.StatusOK, "Simulation begun")
