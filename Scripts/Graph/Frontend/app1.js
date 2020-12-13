@@ -1,7 +1,7 @@
 document.getElementById("getUpdates").addEventListener("click", function(){
   var cantidad = document.getElementById("Cantidad").value;
   console.log(cantidad);
-  if(cantidad>500){
+  if(cantidad>1555){
     alert("Debe ser menos de 500 números");
     return
   }

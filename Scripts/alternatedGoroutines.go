@@ -181,7 +181,7 @@ func main() {
 	arrayChannel <- arr2 //se inserta el array al channel
 	time.Sleep(3 * time.Second)
 
-
 	fmt.Println(arr)
 	fmt.Println(arr2)
 	fmt.Println("Terminó") //verificacion
+}
