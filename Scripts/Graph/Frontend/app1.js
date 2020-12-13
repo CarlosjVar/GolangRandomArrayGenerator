@@ -1,5 +1,11 @@
 document.getElementById("getUpdates").addEventListener("click", function(){
-    axios.get('/simulate')
+  var cantidad = document.getElementById("Cantidad").value;
+  console.log(cantidad);
+  if(cantidad>500){
+    alert("Debe ser menos de 500 números");
+    return
+  }
+  axios.get(`/generate/${cantidad}`)
 })
 document.getElementById("boton2").addEventListener("click", function(){
   var a = newLineChart.data.datasets[0].data[7];
