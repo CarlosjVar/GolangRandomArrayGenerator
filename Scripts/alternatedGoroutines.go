@@ -69,6 +69,7 @@ func BubbleSort(wg *sync.WaitGroup, arrChan chan []int, controller chan int) {
 			break
 		}
 	}
+	defer wg.Done()
 	//arrChan <- randomArray
 }
 
@@ -105,6 +106,7 @@ func InsertionSort(wg *sync.WaitGroup, arrChan chan []int, controller chan int) 
 		}
 		num1++
 	}
+	defer wg.Done()
 	//arrChan <- randomArray
 }
 
