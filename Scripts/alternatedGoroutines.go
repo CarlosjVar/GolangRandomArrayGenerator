@@ -12,7 +12,8 @@ func NormalizeRandom(randomNum float64) int {
 	return RandomNum
 }
 
-func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
+func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, arrayChannel chan []int, size int) {
+	randomArray := []int{}
 	period := 8192
 	constant := 23
 	multiplicativeConstant := 3 + (8 * constant)
@@ -21,28 +22,12 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
 		seed = num
 		normalizedNum := float64(num) / float64(period-1)
 		randomNum := NormalizeRandom(normalizedNum)
-
-		channel <- randomNum
-		//Se pausa
-		<-channel
-
-	}
-}
-
-func createArray(wg *sync.WaitGroup, channel chan int, arrChan chan []int, size int) {
-	randomArray := []int{}
-	randomNum := 0
-	for i := 0; i < size; i++ {
-		randomNum = <-channel
 		randomArray = append(randomArray, randomNum)
-		//fmt.Printf("%v", randomArray)
-		channel <- 0
-
 	}
-	arrChan <- randomArray
-	arrChan <- randomArray
+	fmt.Printf("%v", randomArray)
+	arrayChannel <- randomArray
+	defer wg.Done()
 }
-
 func BubbleSort(wg *sync.WaitGroup, arrChan chan []int, controller chan int) {
 	randomArray := []int{}
 	randomArray = <-arrChan
@@ -165,9 +150,9 @@ func main() {
 	arr2 := []int{}
 
 	var waitGroup sync.WaitGroup
-	go generateRandom(&waitGroup, randomch, int(seed), size) //genera el array
-	go createArray(&waitGroup, randomch, arrayChannel, size)
-	//defer &waitGroup.Done()
+	go generateRandom(&waitGroup, randomch, int(seed), arrayChannel, size) //genera el array
+	waitGroup.Add(1)
+	waitGroup.Wait()
 
 	arr = <-arrayChannel //saca el array del channel
 	fmt.Println(arr)
