@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"math/big"
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -20,14 +23,39 @@ var client = pusher.Client{
 }
 
 //Comienza la generación de números
+func generateSeed() int {
+	seed := getTime() / 16
+	for true {
+		if big.NewInt((int64)(seed)).ProbablyPrime(0) {
+			break
+		}
+		seed += 1
+
+	}
+	fmt.Print(seed)
+	return seed
+
+}
+
+func getTime() int {
+	year := time.Now().Year()
+	mes := time.Now().Month()
+	dia := time.Now().Day()
+	hour := time.Now().Hour()
+	minutos := time.Now().Minute()
+	segundos := time.Now().Second()
+	seed := ((((year*100+int(mes))*100+dia)*100+hour)*100 + minutos) / 50 * segundos
+	return seed
+}
 func generate(c echo.Context) error {
+	seed := generateSeed()
 	cantidad := 0
 	if i, err := strconv.Atoi(c.Param("cantidad")); err == nil {
 		cantidad = i
 	}
 	var waitGroup sync.WaitGroup
 	randomch := make(chan int, 1)
-	go generateRandom(&waitGroup, randomch, 11, cantidad)
+	go generateRandom(&waitGroup, randomch, seed, cantidad)
 	go createArray(&waitGroup, randomch, cantidad)
 	waitGroup.Add(1)
 	waitGroup.Wait()
@@ -35,8 +63,8 @@ func generate(c echo.Context) error {
 }
 
 //Normaliza el numero dado en el rango de 0 a 31
-func NormalizeRandom(randomNum float64) int {
-	RandomNum := 0 + (int)(randomNum*((31-0)+1))
+func NormalizeRandom(randomNum float64, upperbound int16, lowerbound int16) int {
+	RandomNum := 0 + (int)(randomNum*(((float64)(upperbound)-(float64)(lowerbound))+1))
 	return RandomNum
 }
 
@@ -49,7 +77,7 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
 		num := ((seed * multiplicativeConstant) + constant) % int(period)
 		seed = num
 		normalizedNum := float64(num) / float64(period-1)
-		randomNum := NormalizeRandom(normalizedNum)
+		randomNum := NormalizeRandom(normalizedNum, 31, 0)
 		channel <- randomNum
 		//Se pausa
 		<-channel
