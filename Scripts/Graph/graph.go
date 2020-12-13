@@ -56,7 +56,6 @@ func generate(c echo.Context) error {
 	var waitGroup sync.WaitGroup
 	randomch := make(chan int, 1)
 	go generateRandom(&waitGroup, randomch, seed, cantidad)
-	go createArray(&waitGroup, randomch, cantidad)
 	waitGroup.Add(1)
 	waitGroup.Wait()
 	return c.String(http.StatusOK, "Simulation begun")
@@ -70,6 +69,7 @@ func NormalizeRandom(randomNum float64, upperbound int16, lowerbound int16) int 
 
 //Genera un número aleatorio en el intervalo de [0,1[
 func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
+	randomArray := []int{}
 	period := 8192
 	constant := 23
 	multiplicativeConstant := 3 + (8 * constant)
@@ -78,26 +78,13 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
 		seed = num
 		normalizedNum := float64(num) / float64(period-1)
 		randomNum := NormalizeRandom(normalizedNum, 31, 0)
-		channel <- randomNum
-		//Se pausa
-		<-channel
-
-	}
-}
-
-//Recibe un número aleatorio por medio de un canal y lo agrega a un array
-func createArray(wg *sync.WaitGroup, channel chan int, size int) {
-	randomArray := []int{}
-	randomNum := 0
-	for i := 0; i < size; i++ {
-		randomNum = <-channel
 		randomArray = append(randomArray, randomNum)
 		client.Trigger("randomNum", "addNumber", randomArray)
-		channel <- 0
-
 	}
+	fmt.Printf("%v", randomArray)
 	defer wg.Done()
 }
+
 func main() {
 	// Instancia de echo nuestro servidor
 	e := echo.New()
