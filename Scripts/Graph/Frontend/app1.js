@@ -1,6 +1,13 @@
 document.getElementById("getUpdates").addEventListener("click", function(){
     axios.get('/simulate')
 })
+document.getElementById("boton2").addEventListener("click", function(){
+  var a = newLineChart.data.datasets[0].data[7];
+  newLineChart.data.datasets[0].data[7] = newLineChart.data.datasets[0].data[2];
+  newLineChart.data.datasets[0].data[2] = a ;
+  newLineChart.update();
+})
+
 
 const pusher = new Pusher('7befe6ab035a03a2ada9', {
     cluster: 'us2',
@@ -28,7 +35,7 @@ channel.bind('addNumber', data => {
 function renderChart(userVisitsData) {
   var ctx = document.getElementById("realtimeChart").getContext("2d");
 
-  var options = {};
+  var options = { animation: { duration: 0 }};
 
   newLineChart = new Chart(ctx, {
     type: "bar",
