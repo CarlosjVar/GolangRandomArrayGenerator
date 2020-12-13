@@ -178,24 +178,8 @@ func main() {
 	<-arrayChannel
 	arrayChannel <- arr2 //se inserta el array al channel
 	time.Sleep(3 * time.Second)
-	//arr = <-arrayChannel  //se saca el array ordenado del channel
-	//arr2 = <-arrayChannel //se saca el array ordenado del channel
-	//<-arrayChannel        //vacia el channel
 
-	//waitGroup.Add(1)
-	//waitGroup.Wait()
 
 	fmt.Println(arr)
 	fmt.Println(arr2)
 	fmt.Println("Terminó") //verificacion
-
-	// arr := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86}
-	//arr2 := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86}
-	// arr := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86, 12, 71, 11, 41, 10, 31, 57, 23, 87, 90, 48, 100, 43, 80, 42, 50, 86, 40, 61, 48, 73, 95, 69, 14, 78, 87, 14, 89, 91, 49, 91, 87, 36, 62, 8, 57, 46, 49, 9, 32, 98, 96, 42, 52, 61, 35, 97, 69, 51, 63, 87, 10, 55, 95, 79, 69, 45, 30, 23, 58, 58, 61, 77, 31, 37, 94, 47, 8, 41, 68, 89, 89, 45, 35, 1, 16, 18, 16, 65, 100, 58, 9, 74, 57, 27, 50, 92, 100, 19, 15}
-	// arr2 := []int{16, 95, 12, 29, 40, 25, 46, 29, 13, 86, 12, 71, 11, 41, 10, 31, 57, 23, 87, 90, 48, 100, 43, 80, 42, 50, 86, 40, 61, 48, 73, 95, 69, 14, 78, 87, 14, 89, 91, 49, 91, 87, 36, 62, 8, 57, 46, 49, 9, 32, 98, 96, 42, 52, 61, 35, 97, 69, 51, 63, 87, 10, 55, 95, 79, 69, 45, 30, 23, 58, 58, 61, 77, 31, 37, 94, 47, 8, 41, 68, 89, 89, 45, 35, 1, 16, 18, 16, 65, 100, 58, 9, 74, 57, 27, 50, 92, 100, 19, 15}
-	// BubbleSort(arr)
-	// InsertionSort(arr2)
-	// fmt.Println(arr)
-	// fmt.Println(arr2)
-
-}
