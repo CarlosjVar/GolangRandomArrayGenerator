@@ -84,6 +84,92 @@ func BubbleSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	//arrChan <- randomArray
 }
 
+//Estructura del heap
+type maxheap struct {
+	arr []int
+}
+
+//Crea una estructura de heap
+func newMaxHeap(arr []int) *maxheap {
+	maxheap := &maxheap{
+		arr: arr,
+	}
+	return maxheap
+}
+
+//Retorna el índice del hijo izquierdo de un nodo
+func (m *maxheap) indiceIzquierdo(index int) int {
+	return 2*index + 1
+}
+
+//Retorna el índice del hijo derecho de un nodo
+func (m *maxheap) indiceDerecho(index int) int {
+	return 2*index + 2
+}
+
+//Intercambia 2 elementos de un array entre si
+func (m *maxheap) swap(primero, segundo int) {
+	m.arr[primero], m.arr[segundo] = m.arr[segundo], m.arr[primero]
+}
+
+func (m *maxheap) leaf(index int, lenght int) bool {
+	if index >= (lenght/2) && index <= lenght {
+		return true
+	}
+	return false
+}
+
+//Se encarga de hacer un heap a partir de un array , esto comparando la raíz con sus hijos , si alguno de ellos es más grande que la raíz se intercambia su posición
+func (m *maxheap) heapify(current int, lenght int) {
+	if m.leaf(current, lenght) {
+		return
+	}
+	mayor := current
+	indiceIzquierdo := m.indiceIzquierdo(current)
+	rightRightIndex := m.indiceDerecho(current)
+	if indiceIzquierdo < lenght && m.arr[indiceIzquierdo] > m.arr[mayor] {
+		mayor = indiceIzquierdo
+	}
+	if rightRightIndex < lenght && m.arr[rightRightIndex] > m.arr[mayor] {
+		mayor = rightRightIndex
+	}
+	if mayor != current {
+		m.swap(current, mayor)
+		m.heapify(mayor, lenght)
+	}
+	return
+}
+
+//Recibe un array y lo convierte en un maxHeap
+func (m *maxheap) buildMaxHeap(lenght int) {
+	for index := ((lenght / 2) - 1); index >= 0; index-- {
+		m.heapify(index, lenght)
+	}
+}
+
+//Sortea el max heap , esto mediante el método de tomar la raíz , que es el mayor y lo envía al final
+func (m *maxheap) sort(lenght int) {
+	m.buildMaxHeap(lenght)
+	for i := lenght - 1; i > 0; i-- {
+		// Mueve la raíz al final para
+		m.swap(0, i)
+		m.heapify(0, i)
+	}
+}
+
+func (m *maxheap) print() {
+	for _, val := range m.arr {
+		fmt.Println(val)
+	}
+}
+
+//Función que se encarga del proceso
+func heapsort(array []int) {
+	minHeap := newMaxHeap(array)
+	minHeap.sort(len(array))
+	// minHeap.print()
+}
+
 func InsertionSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	var num1 = 1
 	var numAux = 0
@@ -169,11 +255,11 @@ func CopyArray(arrOri []int) []int {
 
 func main() {
 
-	var seed int64
+	var size int
 	for true {
 		fmt.Println("Ingrese cuantos números desea [10,10000]")
 		fmt.Scan(&size)
-		if size >= 10 && seed <= 10000 {
+		if size >= 10 && size <= 10000 {
 			break
 		} else {
 			fmt.Println("El número debe estar en el intervalo de [10,10000]")
@@ -201,8 +287,8 @@ func main() {
 
 	waitGroup.Add(2)
 	waitGroup.Wait()
-
-	QuickSort(arr3, randomch) //Quicksort sin corrutinas al tercer Array
+	heapsort(arr3)
+	// QuickSort(arr3, randomch) //Quicksort sin corrutinas al tercer Array
 
 	fmt.Println(arr)
 	fmt.Println(arr2)
