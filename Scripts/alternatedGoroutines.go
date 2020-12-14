@@ -4,14 +4,44 @@ import (
 	"fmt"
 	"math/big"
 	"sync"
+	"time"
 )
 
-func NormalizeRandom(randomNum float64) int {
-	RandomNum := 0 + (int)(randomNum*((31-0)+1))
+//Comienza la generación de números
+func generateSeed() int {
+	seed := getTime() / 16
+	for true {
+		if big.NewInt((int64)(seed)).ProbablyPrime(0) {
+			break
+		}
+		seed += 1
+
+	}
+	fmt.Print(seed)
+	return seed
+
+}
+
+func getTime() int {
+	year := time.Now().Year()
+	mes := time.Now().Month()
+	dia := time.Now().Day()
+	hour := time.Now().Hour()
+	minutos := time.Now().Minute()
+	segundos := time.Now().Second()
+	seed := ((((year*100+int(mes))*100+dia)*100+hour)*100 + minutos) / 50 * segundos
+	return seed
+}
+
+//Normaliza el numero dado en el rango de 0 a 31
+func NormalizeRandom(randomNum float64, upperbound int16, lowerbound int16) int {
+	RandomNum := 0 + (int)(randomNum*(((float64)(upperbound)-(float64)(lowerbound))+1))
 	return RandomNum
 }
 
-func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, arrayChannel chan []int, size int) {
+//Genera un número aleatorio en el intervalo de [0,1[
+func generateRandom(wg *sync.WaitGroup, channel chan int, arrayChannel chan []int, size int) {
+	seed := generateSeed()
 	randomArray := []int{}
 	period := 8192
 	constant := 23
@@ -20,12 +50,11 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, arrayChannel
 		num := ((seed * multiplicativeConstant) + constant) % int(period)
 		seed = num
 		normalizedNum := float64(num) / float64(period-1)
-		randomNum := NormalizeRandom(normalizedNum)
+		randomNum := NormalizeRandom(normalizedNum, 31, 0)
 		randomArray = append(randomArray, randomNum)
 	}
-	//fmt.Printf("%v", randomArray)
+	fmt.Printf("%v", randomArray)
 	arrayChannel <- randomArray
-	//defer wg.Done()
 }
 func BubbleSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	fmt.Println("BubbleSort")
@@ -142,25 +171,6 @@ func main() {
 
 	var seed int64
 	for true {
-		fmt.Println("Ingrese una semilla prima en el intervalo de 11 a 101") //Menu para parametros a eleccion del usuario
-		fmt.Scan(&seed)
-		if (seed >= 11) && (seed <= 101) {
-
-			if big.NewInt(seed).ProbablyPrime(0) {
-				break
-
-			} else {
-
-				fmt.Println("Debe ingresar un número primo")
-			}
-
-		} else {
-
-			fmt.Println("Debe ingresar un número entre 11 y 101")
-		}
-	}
-	var size int
-	for true {
 		fmt.Println("Ingrese cuantos números desea [10,10000]")
 		fmt.Scan(&size)
 		if size >= 10 && seed <= 10000 {
@@ -177,7 +187,7 @@ func main() {
 	arr3 := []int{}
 
 	var waitGroup sync.WaitGroup
-	go generateRandom(&waitGroup, randomch, int(seed), arrayChannel, size) //genera el array
+	go generateRandom(&waitGroup, randomch, arrayChannel, size) //genera el array
 
 	arr = <-arrayChannel //saca el array del channel
 	fmt.Println(arr)
