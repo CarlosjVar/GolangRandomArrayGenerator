@@ -292,11 +292,11 @@ func main() {
 	arr4 = CopyArray(arr3) //copia el array
 	fmt.Println(arr4)
 
-	// go BubbleSort(&waitGroup, arr, randomch)     //BubbleSort al primer Array
-	// go InsertionSort(&waitGroup, arr2, randomch) //InsetionSort al segundo Array
+	go BubbleSort(&waitGroup, arr, randomch)     //BubbleSort al primer Array
+	go InsertionSort(&waitGroup, arr2, randomch) //InsetionSort al segundo Array
 
-	// waitGroup.Add(2)
-	// waitGroup.Wait()
+	waitGroup.Add(2)
+	waitGroup.Wait()
 	heapsort(arr3)
 	fmt.Println("QuickSort")
 	QuickSort(arr4, randomch) //Quicksort sin corrutinas al tercer Array
