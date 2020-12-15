@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-//Comienza la generación de números
+// Comienza la generación de números
 func generateSeed() int {
 	seed := getTime() / 16
 	for true {
@@ -21,6 +21,7 @@ func generateSeed() int {
 
 }
 
+// Genera una semilla con el reloj del sistema
 func getTime() int {
 	year := time.Now().Year()
 	mes := time.Now().Month()
@@ -32,13 +33,13 @@ func getTime() int {
 	return seed
 }
 
-//Normaliza el numero dado en el rango de 0 a 31
+// Normaliza el numero dado en el rango de 0 a 31
 func NormalizeRandom(randomNum float64, upperbound int16, lowerbound int16) int {
 	RandomNum := 0 + (int)(randomNum*(((float64)(upperbound)-(float64)(lowerbound))+1))
 	return RandomNum
 }
 
-//Genera un número aleatorio en el intervalo de [0,1[
+// Genera un número aleatorio en el intervalo de [0,1[
 func generateRandom(wg *sync.WaitGroup, channel chan int, arrayChannel chan []int, size int) {
 	seed := generateSeed()
 	randomArray := []int{}
@@ -54,6 +55,8 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, arrayChannel chan []in
 	} //For end
 	arrayChannel <- randomArray
 }
+
+// Función que ejecuta el bubblesort
 func BubbleSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	fmt.Println("BubbleSort\n")
 	for true { //ciclo que atravieza el array multiples veces hasta no necesitar mas cambios
@@ -82,12 +85,12 @@ func BubbleSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	//arrChan <- randomArray
 }
 
-//Estructura del heap
+// Estructura del heap
 type maxheap struct {
 	arr []int
 }
 
-//Crea una estructura de heap
+// Crea una estructura de heap
 func newMaxHeap(arr []int) *maxheap {
 	maxheap := &maxheap{
 		arr: arr,
@@ -95,17 +98,17 @@ func newMaxHeap(arr []int) *maxheap {
 	return maxheap
 }
 
-//Retorna el índice del hijo izquierdo de un nodo
+// Retorna el índice del hijo izquierdo de un nodo
 func (m *maxheap) indiceIzquierdo(index int) int {
 	return 2*index + 1
 }
 
-//Retorna el índice del hijo derecho de un nodo
+// Retorna el índice del hijo derecho de un nodo
 func (m *maxheap) indiceDerecho(index int) int {
 	return 2*index + 2
 }
 
-//Intercambia 2 elementos de un array entre si
+// Intercambia 2 elementos de un array entre si
 func (m *maxheap) swap(primero, segundo int) {
 	m.arr[primero], m.arr[segundo] = m.arr[segundo], m.arr[primero]
 }
@@ -117,7 +120,7 @@ func (m *maxheap) leaf(index int, lenght int) bool {
 	return false
 }
 
-//Se encarga de hacer un heap a partir de un array , esto comparando la raíz con sus hijos , si alguno de ellos es más grande que la raíz se intercambia su posición
+// Se encarga de hacer un heap a partir de un array , esto comparando la raíz con sus hijos , si alguno de ellos es más grande que la raíz se intercambia su posición
 func (m *maxheap) heapify(current int, lenght int) {
 	if m.leaf(current, lenght) {
 		return
@@ -138,14 +141,14 @@ func (m *maxheap) heapify(current int, lenght int) {
 	return
 }
 
-//Recibe un array y lo convierte en un maxHeap
+// Recibe un array y lo convierte en un maxHeap
 func (m *maxheap) buildMaxHeap(lenght int) {
 	for index := ((lenght / 2) - 1); index >= 0; index-- {
 		m.heapify(index, lenght)
 	}
 }
 
-//Sortea el max heap , esto mediante el método de tomar la raíz , que es el mayor y lo envía al final
+// Sortea el max heap , esto mediante el método de tomar la raíz , que es el mayor y lo envía al final
 func (m *maxheap) sort(lenght int, start time.Time) {
 	m.buildMaxHeap(lenght)
 	for i := lenght - 1; i > 0; i-- {
@@ -157,14 +160,14 @@ func (m *maxheap) sort(lenght int, start time.Time) {
 	fmt.Print(time.Since(start))
 }
 
-//Función para imprimir el heap
+// Función para imprimir el heap
 func (m *maxheap) print() {
 	for _, val := range m.arr {
 		fmt.Println(val)
 	}
 }
 
-//Función que se encarga del proceso
+// Función que se encarga del proceso
 func heapsort(array []int) {
 	start := time.Now()
 	fmt.Println("Heapsort \n")
@@ -174,6 +177,7 @@ func heapsort(array []int) {
 	// minHeap.print()
 }
 
+// Función encargada de ejecutar el insertionsort
 func InsertionSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	var num1 = 1
 	var numAux = 0
@@ -209,6 +213,7 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	//arrChan <- randomArray
 }
 
+// Función encargade de realizar el quicksort
 func QuickSort(array []int, controller chan int) { //metodo recursivo con pivote al final
 	if len(array) < 2 {
 		//fmt.Println("Fin")		//condicion de salida
@@ -234,12 +239,13 @@ func QuickSort(array []int, controller chan int) { //metodo recursivo con pivote
 	auxiliar = array[ladoIzq]
 	array[ladoIzq] = array[ladoDer] //El pivote se mueve al final del subarray de la izquierda
 	array[ladoDer] = auxiliar
-	//TempObtenerIndices(ladoIzq, ladoDer, "QuickSort")
+	// TempObtenerIndices(ladoIzq, ladoDer, "QuickSort")
 
 	QuickSort(array[:ladoIzq], controller) //Llamadas recursivas para ambos subarrays
 	QuickSort(array[ladoIzq+1:], controller)
 }
 
+// Obtiene
 func TempObtenerIndices(indice1 int, indice2 int, ordenamiento string) {
 	fmt.Print(indice1)
 	fmt.Print(" ")
@@ -247,6 +253,7 @@ func TempObtenerIndices(indice1 int, indice2 int, ordenamiento string) {
 	fmt.Println(" " + ordenamiento)
 }
 
+// Genera una copia de un array
 func CopyArray(arrOri []int) []int {
 	nuevoArray := []int{}
 	var num = 0
