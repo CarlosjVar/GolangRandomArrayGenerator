@@ -51,11 +51,8 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, arrayChannel chan []in
 		normalizedNum := float64(num) / float64(period-1)
 		randomNum := NormalizeRandom(normalizedNum, 31, 0)
 		randomArray = append(randomArray, randomNum)
-	}
-	//fmt.Printf("%v", randomArray)
 	} //For end
 	arrayChannel <- randomArray
-	defer wg.Done()
 }
 func BubbleSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	fmt.Println("BubbleSort\n")
@@ -169,6 +166,7 @@ func (m *maxheap) print() {
 
 //Función que se encarga del proceso
 func heapsort(array []int) {
+	start := time.Now()
 	fmt.Println("Heapsort \n")
 	minHeap := newMaxHeap(array)
 	minHeap.sort(len(array), start)
