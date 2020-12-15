@@ -17,7 +17,6 @@ func generateSeed() int {
 		seed += 1
 
 	}
-	fmt.Print(seed)
 	return seed
 
 }
@@ -52,9 +51,9 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, arrayChannel chan []in
 		normalizedNum := float64(num) / float64(period-1)
 		randomNum := NormalizeRandom(normalizedNum, 31, 0)
 		randomArray = append(randomArray, randomNum)
-	}
-	fmt.Printf("%v", randomArray)
+	} //For end
 	arrayChannel <- randomArray
+	defer wg.Done()
 }
 func BubbleSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	fmt.Println("BubbleSort")
@@ -148,15 +147,18 @@ func (m *maxheap) buildMaxHeap(lenght int) {
 }
 
 //Sortea el max heap , esto mediante el método de tomar la raíz , que es el mayor y lo envía al final
-func (m *maxheap) sort(lenght int) {
+func (m *maxheap) sort(lenght int, start time.Time) {
 	m.buildMaxHeap(lenght)
 	for i := lenght - 1; i > 0; i-- {
-		// Mueve la raíz al final para
+		// Obtiene la raíz y la "elimina " del heap
 		m.swap(0, i)
 		m.heapify(0, i)
 	}
+
+	fmt.Print(time.Since(start))
 }
 
+//Función para imprimir el heap
 func (m *maxheap) print() {
 	for _, val := range m.arr {
 		fmt.Println(val)
@@ -165,8 +167,10 @@ func (m *maxheap) print() {
 
 //Función que se encarga del proceso
 func heapsort(array []int) {
+	start := time.Now()
 	minHeap := newMaxHeap(array)
-	minHeap.sort(len(array))
+	minHeap.sort(len(array), start)
+
 	// minHeap.print()
 }
 
@@ -274,24 +278,25 @@ func main() {
 
 	var waitGroup sync.WaitGroup
 	go generateRandom(&waitGroup, randomch, arrayChannel, size) //genera el array
-
-	arr = <-arrayChannel //saca el array del channel
-	fmt.Println(arr)
-	arr2 = CopyArray(arr) //copia el array
-	fmt.Println(arr2)
-	arr3 = CopyArray(arr2) //copia el array
-	fmt.Println(arr3)
-
-	go BubbleSort(&waitGroup, arr, randomch)     //BubbleSort al primer Array
-	go InsertionSort(&waitGroup, arr2, randomch) //InsetionSort al segundo Array
-
-	waitGroup.Add(2)
+	waitGroup.Add(1)
 	waitGroup.Wait()
+	arr = <-arrayChannel //saca el array del channel
+	// fmt.Println(arr)
+	arr2 = CopyArray(arr) //copia el array
+	// fmt.Println(arr2)
+	arr3 = CopyArray(arr2) //copia el array
+	// fmt.Println(arr3)
+
+	// go BubbleSort(&waitGroup, arr, randomch)     //BubbleSort al primer Array
+	// go InsertionSort(&waitGroup, arr2, randomch) //InsetionSort al segundo Array
+
+	// waitGroup.Add(2)
+	// waitGroup.Wait()
 	heapsort(arr3)
 	// QuickSort(arr3, randomch) //Quicksort sin corrutinas al tercer Array
 
-	fmt.Println(arr)
-	fmt.Println(arr2)
-	fmt.Println(arr3)
+	// fmt.Println(arr)
+	// fmt.Println(arr2)
+	// fmt.Println(arr3)
 	fmt.Println("Terminó") //verificacion
 }
