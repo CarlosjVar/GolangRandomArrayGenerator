@@ -51,12 +51,14 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, arrayChannel chan []in
 		normalizedNum := float64(num) / float64(period-1)
 		randomNum := NormalizeRandom(normalizedNum, 31, 0)
 		randomArray = append(randomArray, randomNum)
+	}
+	//fmt.Printf("%v", randomArray)
 	} //For end
 	arrayChannel <- randomArray
 	defer wg.Done()
 }
 func BubbleSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
-	fmt.Println("BubbleSort")
+	fmt.Println("BubbleSort\n")
 	for true { //ciclo que atravieza el array multiples veces hasta no necesitar mas cambios
 		var num1 = 0 //declaracion de variables
 		var num2 = 1
@@ -68,7 +70,7 @@ func BubbleSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 				numAux = randomArray[num1]            //si el numero actual es x es mayor al numero x+1
 				randomArray[num1] = randomArray[num2] //intercambian lugares
 				randomArray[num2] = numAux
-				TempObtenerIndices(num1, num2, "BubbleSort")
+				//TempObtenerIndices(num1, num2, "BubbleSort")
 				cambio = true //se indica que en la recorrida actual hubo cambios
 				//controller <- 0
 			}
@@ -167,7 +169,7 @@ func (m *maxheap) print() {
 
 //Función que se encarga del proceso
 func heapsort(array []int) {
-	start := time.Now()
+	fmt.Println("Heapsort \n")
 	minHeap := newMaxHeap(array)
 	minHeap.sort(len(array), start)
 
@@ -177,9 +179,9 @@ func heapsort(array []int) {
 func InsertionSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 	var num1 = 1
 	var numAux = 0
-	var numGua = 0 //declaracion de variables
+	//var numGua = 0 //declaracion de variables
 	var guardado = 0
-	fmt.Println("Insertion Sort")
+	fmt.Println("\nInsertion Sort\n")
 	for num1 < len(randomArray) { //recorrida iteratiba sobre el array
 		numAux = num1
 		guardado = randomArray[num1]
@@ -187,12 +189,12 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 		for numAux > 0 { //iteracion iterativa para devolver un indice hasta donde sea necesario en el array
 			if guardado < randomArray[numAux-1] {
 				randomArray[numAux] = randomArray[numAux-1] //si el numero anterior es mayor inicia cambio de posiciones
-				numGua = numAux
+				//numGua = numAux
 				cambio = true //condicional usado para saber si el numero debe seguir siendo movido o nunca sera necesario
 			} else if cambio {
 				//controller <- 0
 				randomArray[numAux] = guardado
-				TempObtenerIndices(numGua, numAux, "InsertSort") // si en algun momento hubo algun cambio pero ya no es necesario
+				//TempObtenerIndices(numGua, numAux, "InsertSort") // si en algun momento hubo algun cambio pero ya no es necesario
 				//<-controller										// significa que es el lugar dode el numero debe permanecer
 				break
 			} else {
@@ -225,7 +227,7 @@ func QuickSort(array []int, controller chan int) { //metodo recursivo con pivote
 			auxiliar = array[ladoIzq] //se mueve el numero del indice al final del subarray
 			array[ladoIzq] = array[i] //de menores a la izquierda, y se actualiza la variable
 			array[i] = auxiliar       //representando el final del mismo
-			TempObtenerIndices(i, ladoIzq, "QuickSort")
+			//TempObtenerIndices(i, ladoIzq, "QuickSort")
 			ladoIzq++
 
 		}
@@ -234,7 +236,7 @@ func QuickSort(array []int, controller chan int) { //metodo recursivo con pivote
 	auxiliar = array[ladoIzq]
 	array[ladoIzq] = array[ladoDer] //El pivote se mueve al final del subarray de la izquierda
 	array[ladoDer] = auxiliar
-	TempObtenerIndices(ladoIzq, ladoDer, "QuickSort")
+	//TempObtenerIndices(ladoIzq, ladoDer, "QuickSort")
 
 	QuickSort(array[:ladoIzq], controller) //Llamadas recursivas para ambos subarrays
 	QuickSort(array[ladoIzq+1:], controller)
@@ -275,17 +277,20 @@ func main() {
 	arr := []int{}
 	arr2 := []int{}
 	arr3 := []int{}
+	arr4 := []int{}
 
 	var waitGroup sync.WaitGroup
 	go generateRandom(&waitGroup, randomch, arrayChannel, size) //genera el array
-	waitGroup.Add(1)
-	waitGroup.Wait()
+
+	fmt.Println("Unsorted Arrays")
 	arr = <-arrayChannel //saca el array del channel
 	// fmt.Println(arr)
 	arr2 = CopyArray(arr) //copia el array
 	// fmt.Println(arr2)
 	arr3 = CopyArray(arr2) //copia el array
-	// fmt.Println(arr3)
+	fmt.Println(arr3)
+	arr4 = CopyArray(arr3) //copia el array
+	fmt.Println(arr4)
 
 	// go BubbleSort(&waitGroup, arr, randomch)     //BubbleSort al primer Array
 	// go InsertionSort(&waitGroup, arr2, randomch) //InsetionSort al segundo Array
@@ -293,10 +298,14 @@ func main() {
 	// waitGroup.Add(2)
 	// waitGroup.Wait()
 	heapsort(arr3)
-	// QuickSort(arr3, randomch) //Quicksort sin corrutinas al tercer Array
+	fmt.Println("QuickSort")
+	QuickSort(arr4, randomch) //Quicksort sin corrutinas al tercer Array
 
-	// fmt.Println(arr)
-	// fmt.Println(arr2)
-	// fmt.Println(arr3)
+	fmt.Println("\nSorted Arrays")
+	fmt.Println(arr)
+	fmt.Println(arr)
+	fmt.Println(arr2)
+	fmt.Println(arr3)
+	fmt.Println(arr4)
 	fmt.Println("Terminó") //verificacion
 }
