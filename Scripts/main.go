@@ -185,26 +185,26 @@ func heapsort(array []int) {
 }
 
 // Función encargada de ejecutar el insertionsort
-func InsertionSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
+func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan []int) {
 	var num1 = 1
-	var numAux = 0
-	//var numGua = 0 //declaracion de variables
+	var numAux = 0 //declaracion de variables
 	var guardado = 0
 	fmt.Println("\nInsertion Sort\n")
 	for num1 < len(randomArray) { //recorrida iteratiba sobre el array
+		posiciones := []int{}
+		posiciones = append(posiciones, num1)
 		numAux = num1
 		guardado = randomArray[num1]
 		var cambio = false
-		for numAux > 0 { //iteracion iterativa para devolver un indice hasta donde sea necesario en el array
+		for numAux > 0 { //iteracion para devolver un indice hasta donde sea necesario en el array
 			if guardado < randomArray[numAux-1] {
 				randomArray[numAux] = randomArray[numAux-1] //si el numero anterior es mayor inicia cambio de posiciones
-				//numGua = numAux
-				cambio = true //condicional usado para saber si el numero debe seguir siendo movido o nunca sera necesario
+				cambio = true                               //condicional usado para saber si el numero debe seguir siendo movido o nunca sera necesario
 			} else if cambio {
-				//controller <- 0
-				randomArray[numAux] = guardado
-				//TempObtenerIndices(numGua, numAux, "InsertSort") // si en algun momento hubo algun cambio pero ya no es necesario
-				//<-controller										// significa que es el lugar dode el numero debe permanecer
+				randomArray[numAux] = guardado          // si en algun momento hubo algun cambio pero ya no es necesario
+				posiciones = append(posiciones, numAux) // significa que es el lugar dode el numero debe permanecer
+				insertionChannel <- posiciones
+				<-insertionChannel
 				break
 			} else {
 				numAux = -1 //de no haber habido un cambio nunca se cancela el ciclo para el numero actual
@@ -216,6 +216,11 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, controller chan int) {
 		}
 		num1++
 	}
+	posiciones := []int{}
+	posiciones = append(posiciones, 0)
+	posiciones = append(posiciones, 0)
+	insertionChannel <- posiciones
+	<-insertionChannel
 	defer wg.Done()
 	//arrChan <- randomArray
 }
@@ -252,7 +257,6 @@ func QuickSort(array []int, controller chan int) { //metodo recursivo con pivote
 	QuickSort(array[ladoIzq+1:], controller)
 }
 
-// Obtiene
 func TempGraficarBubble(bubbleChannel chan []int) {
 	posicCamb := []int{}
 	for true {
@@ -266,6 +270,22 @@ func TempGraficarBubble(bubbleChannel chan []int) {
 		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
 		fmt.Println(" " + "BubbleSort")
 		bubbleChannel <- posicCamb
+	}
+}
+
+func TempGraficarInsertion(insertionChannel chan []int) {
+	posicCamb := []int{}
+	for true {
+		posicCamb = <-insertionChannel
+		if posicCamb[0] == 0 && posicCamb[1] == 0 {
+			insertionChannel <- posicCamb
+			break
+		}
+		fmt.Print(posicCamb[0])
+		fmt.Print(" ")
+		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
+		fmt.Println(" " + "InsertionSort")
+		insertionChannel <- posicCamb
 	}
 }
 
@@ -295,7 +315,7 @@ func main() {
 	randomch := make(chan int, 1) //creacion de canales para fturo uso
 	arrayChannel := make(chan []int, 1)
 	bubbleChannel := make(chan []int, 1)
-	//insertionChannel := make(chan []int, 1)
+	insertionChannel := make(chan []int, 1)
 	//heapChannel := make(chan []int, 1)
 	//quickChannel := make(chan []int, 1)
 
@@ -309,9 +329,9 @@ func main() {
 
 	fmt.Println("Unsorted Arrays")
 	arr = <-arrayChannel //saca el array del channel
-	// fmt.Println(arr)
+	fmt.Println(arr)
 	arr2 = CopyArray(arr) //copia el array
-	// fmt.Println(arr2)
+	fmt.Println(arr2)
 	arr3 = CopyArray(arr2) //copia el array
 	fmt.Println(arr3)
 	arr4 = CopyArray(arr3) //copia el array
@@ -319,9 +339,10 @@ func main() {
 
 	go TempGraficarBubble(bubbleChannel)
 	go BubbleSort(&waitGroup, arr, bubbleChannel) //BubbleSort al primer Array
-	//go InsertionSort(&waitGroup, arr2, randomch) //InsetionSort al segundo Array
+	go TempGraficarInsertion(insertionChannel)
+	go InsertionSort(&waitGroup, arr2, insertionChannel) //InsetionSort al segundo Array
 
-	waitGroup.Add(1)
+	waitGroup.Add(2)
 	waitGroup.Wait()
 	//heapsort(arr3)
 	//fmt.Println("QuickSort")
