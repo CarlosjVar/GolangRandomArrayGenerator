@@ -226,9 +226,14 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan 
 }
 
 // Función encargade de realizar el quicksort
-func QuickSort(array []int, controller chan int) { //metodo recursivo con pivote al final
+func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //metodo recursivo con pivote al final
 	if len(array) < 2 {
 		//fmt.Println("Fin")		//condicion de salida
+		posiciones := []int{}
+		posiciones = append(posiciones, 0)
+		posiciones = append(posiciones, 0)
+		quickChannel <- posiciones
+		<-quickChannel
 		return
 	}
 
@@ -236,13 +241,17 @@ func QuickSort(array []int, controller chan int) { //metodo recursivo con pivote
 	ladoIzq := 0
 	ladoDer := len(array) - 1 //declaracion de variables
 	auxiliar := 0
+	posiciones := []int{}
 
 	for i, _ := range array {
 		if array[i] < array[ladoDer] { //Si el numero en el indice actual en menor al pivote
 			auxiliar = array[ladoIzq] //se mueve el numero del indice al final del subarray
 			array[ladoIzq] = array[i] //de menores a la izquierda, y se actualiza la variable
 			array[i] = auxiliar       //representando el final del mismo
-			//TempObtenerIndices(i, ladoIzq, "QuickSort")
+			posiciones = append(posiciones, 0)
+			posiciones = append(posiciones, 0)
+			quickChannel <- posiciones
+			<-quickChannel
 			ladoIzq++
 
 		}
@@ -251,10 +260,12 @@ func QuickSort(array []int, controller chan int) { //metodo recursivo con pivote
 	auxiliar = array[ladoIzq]
 	array[ladoIzq] = array[ladoDer] //El pivote se mueve al final del subarray de la izquierda
 	array[ladoDer] = auxiliar
-	// TempObtenerIndices(ladoIzq, ladoDer, "QuickSort")
-
-	QuickSort(array[:ladoIzq], controller) //Llamadas recursivas para ambos subarrays
-	QuickSort(array[ladoIzq+1:], controller)
+	posiciones = append(posiciones, 0)
+	posiciones = append(posiciones, 0)
+	quickChannel <- posiciones
+	<-quickChannel
+	QuickSort(wg, array[:ladoIzq], quickChannel) //Llamadas recursivas para ambos subarrays
+	QuickSort(wg, array[ladoIzq+1:], quickChannel)
 }
 
 func TempGraficarBubble(bubbleChannel chan []int) {
@@ -270,6 +281,22 @@ func TempGraficarBubble(bubbleChannel chan []int) {
 		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
 		fmt.Println(" " + "BubbleSort")
 		bubbleChannel <- posicCamb
+	}
+}
+
+func TempGraficarQuick(quickChannel chan []int) {
+	posicCamb := []int{}
+	for true {
+		posicCamb = <-quickChannel
+		if posicCamb[0] == 0 && posicCamb[1] == 0 {
+			quickChannel <- posicCamb
+			break
+		}
+		fmt.Print(posicCamb[0])
+		fmt.Print(" ")
+		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
+		fmt.Println(" " + "QuickSort")
+		quickChannel <- posicCamb
 	}
 }
 
@@ -317,7 +344,7 @@ func main() {
 	bubbleChannel := make(chan []int, 1)
 	insertionChannel := make(chan []int, 1)
 	//heapChannel := make(chan []int, 1)
-	//quickChannel := make(chan []int, 1)
+	quickChannel := make(chan []int, 1)
 
 	arr := []int{}
 	arr2 := []int{}
@@ -341,6 +368,8 @@ func main() {
 	go BubbleSort(&waitGroup, arr, bubbleChannel) //BubbleSort al primer Array
 	go TempGraficarInsertion(insertionChannel)
 	go InsertionSort(&waitGroup, arr2, insertionChannel) //InsetionSort al segundo Array
+	go TempGraficarQuick(quickChannel)
+	go QuickSort(&waitGroup, arr3, quickChannel) //InsetionSort al segundo Array
 
 	waitGroup.Add(2)
 	waitGroup.Wait()
