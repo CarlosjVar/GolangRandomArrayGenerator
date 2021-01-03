@@ -8,20 +8,47 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
 
-  <body>
+  <body">
 
       <section class="subheader">
-          <h2>Generación de números pseudoaleatorios</h2>
-          <label for="Cantidad">Cantidad de números</label>
-          <input type="number" id="Cantidad" name="Cantidad"><br>
-          <button id="getUpdates" class="btn-primary"> Comenzar </button>
-          <button id="boton2" class="btn-primary"> Comenzar 2</button>
-
+          <h2>Comparación de métodos de ordenamiento</h2>
+            
+          <button id="getUpdates" class="btn-primary" style="background-color:red; border-color: red;"> Comenzar </button>
       </section>
 
-      <section width="500px" style="margin:0 auto;width: 100%;max-width: 1400">    
-          <canvas id="realtimeChart"></canvas>
+      <section>
+        <div style="display: flex; justify-content: center;">
+            <div  style="width:800px;height:500px">
+                <h3>Bubble Sort</h3>
+                <canvas id="chart1"></canvas>
+            </div>
+            <div  style="width:800px;height:500px">
+                <h3>Insertion Sort</h3>
+                <canvas id="chart2"></canvas>
+            </div>
+        </div>
+    </section>
+    <section>        
+        <div style="display: flex; justify-content: center;">
+            <div  style="width:800px;height:500px">
+                <h3>Heap Sort</h3>
+                <canvas id="chart3"></canvas>
+            </div>
+            <div  style="width:800px;height:500px">
+                <h3>QuickSort</h3>
+                <canvas id="chart4"></canvas>
+            </div>
+        </div>
+    </section>
+
+    
+
+
+    
       </section>
+
+
+
 
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
       <script src="https://js.pusher.com/4.0/pusher.min.js"></script>

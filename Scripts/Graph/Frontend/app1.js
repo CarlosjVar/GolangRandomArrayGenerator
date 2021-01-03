@@ -7,12 +7,11 @@ document.getElementById("getUpdates").addEventListener("click", function(){
   }
   axios.get(`/generate/${cantidad}`)
 })
-document.getElementById("boton2").addEventListener("click", function(){
-  var a = newLineChart.data.datasets[0].data[7];
-  newLineChart.data.datasets[0].data[7] = newLineChart.data.datasets[0].data[2];
-  newLineChart.data.datasets[0].data[2] = a ;
-  newLineChart.update();
-})
+
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("Hola");
+  axios.get(`/load`)
+});
 
 
 const pusher = new Pusher('7befe6ab035a03a2ada9', {
@@ -38,8 +37,8 @@ channel.bind('addNumber', data => {
     newLineChart.update();
 });
 
-function renderChart(userVisitsData) {
-  var ctx = document.getElementById("realtimeChart").getContext("2d");
+function renderChart(chart,userVisitsData) {
+  var ctx = document.getElementById(chart).getContext("2d");
 
   var options = { animation: { duration: 0 }};
 
@@ -54,7 +53,7 @@ var chartConfig = {
   labels: [],
   datasets: [
      {
-        label: "Magnitud de los números pseudoaleatorios",
+        label: "Magnitud de los números",
         fill: false,
         lineTension: 0.1,
         backgroundColor: "rgba(75,192,192,0.4)",
@@ -78,4 +77,7 @@ var chartConfig = {
   ]
 };
 
-renderChart(chartConfig)
+renderChart("chart1",chartConfig)
+renderChart("chart2", chartConfig)
+renderChart("chart3",chartConfig)
+renderChart("chart4", chartConfig)

@@ -47,6 +47,13 @@ func getTime() int {
 	seed := ((((year*100+int(mes))*100+dia)*100+hour)*100 + minutos) / 50 * segundos
 	return seed
 }
+
+func load(c echo.Context) error {
+	fmt.Print("asd ")
+	return c.String(http.StatusOK, "Simulation begun")
+}
+
+ 
 func generate(c echo.Context) error {
 	seed := generateSeed()
 	cantidad := 0
@@ -97,6 +104,7 @@ func main() {
 	e.File("/style.css", "Frontend/style.css")
 	e.File("/app1.js", "Frontend/app1.js")
 	e.GET("/generate/:cantidad", generate)
+	e.GET("/load", load)
 	// Iniciamos el servidor
 	e.Logger.Fatal(e.Start(":9000"))
 }
