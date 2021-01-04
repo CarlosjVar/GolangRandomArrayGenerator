@@ -49,11 +49,9 @@ func getTime() int {
 }
 
 func load(c echo.Context) error {
-	fmt.Print("asd ")
 	return c.String(http.StatusOK, "Simulation begun")
 }
 
- 
 func generate(c echo.Context) error {
 	seed := generateSeed()
 	cantidad := 0
@@ -86,8 +84,9 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, seed int, size int) {
 		normalizedNum := float64(num) / float64(period-1)
 		randomNum := NormalizeRandom(normalizedNum, 31, 0)
 		randomArray = append(randomArray, randomNum)
-		client.Trigger("randomNum", "addNumber", randomArray)
+
 	}
+	client.Trigger("ArrayChannel", "addNumber", randomArray)
 	fmt.Printf("%v", randomArray)
 	defer wg.Done()
 }
