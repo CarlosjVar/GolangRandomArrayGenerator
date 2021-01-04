@@ -364,6 +364,7 @@ func main() {
 	arr4 = CopyArray(arr3) //copia el array
 	fmt.Println(arr4)
 
+	waitGroup.Add(2)
 	go TempGraficarBubble(bubbleChannel)
 	go BubbleSort(&waitGroup, arr, bubbleChannel) //BubbleSort al primer Array
 	go TempGraficarInsertion(insertionChannel)
@@ -371,7 +372,6 @@ func main() {
 	go TempGraficarQuick(quickChannel)
 	go QuickSort(&waitGroup, arr3, quickChannel) //InsetionSort al segundo Array
 
-	waitGroup.Add(2)
 	waitGroup.Wait()
 	//heapsort(arr3)
 	//fmt.Println("QuickSort")

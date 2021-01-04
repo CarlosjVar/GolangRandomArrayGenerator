@@ -7,6 +7,24 @@ document.getElementById("getUpdates").addEventListener("click", function(){
   }
   axios.get(`/generate/${cantidad}`)
 })
+document.getElementById("comenzar").addEventListener("click", function(){
+
+  axios.get(`/start`)
+})
+
+
+function array_move(arr, old_index, new_index) {
+  if (new_index >= arr.length) {
+      var k = new_index - arr.length + 1;
+      while (k--) {
+          arr.push(undefined);
+      }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+};
+
+// returns [2, 1, 3]
+console.log(array_move([1, 2, 3], 0, 1)); 
 
 document.addEventListener("DOMContentLoaded", function() {
   console.log("Hola");
@@ -22,9 +40,46 @@ const pusher = new Pusher('7befe6ab035a03a2ada9', {
 const channel = pusher.subscribe('ArrayChannel');
 
 
-channel.bind("bubble",data =>{
+channel.bind("insertion",data =>{
+  console.log(ChartInsertion.data.datasets[0].data);
+  var a = ChartInsertion.data.datasets[0].data[data[0]];
 
+
+    var from = data[0];     
+
+    var to = data[1];  
   
+    // Store the moved element in a temp  
+    // variable 
+    var temp = ChartInsertion.data.datasets[0].data[from];  
+      
+    // shift elements forward  
+    var i; 
+    for (i = from; i >= to; i--)  
+        { 
+          ChartInsertion.data.datasets[0].data[i] = ChartInsertion.data.datasets[0].data[i - 1];  
+        } 
+      
+    // Insert moved element at position   
+    ChartInsertion.data.datasets[0].data[to] = temp;  
+
+  ChartInsertion.update();
+  console.log( "insertion");
+  
+})
+
+channel.bind("bubble",data =>{
+  var from = data[0]
+  var to= data[1]
+  var a = ChartBubble.data.datasets[0].data[from];
+  ChartBubble.data.datasets[0].data[from] = ChartBubble.data.datasets[0].data[to];
+  ChartBubble.data.datasets[0].data[to] = a ;
+  ChartBubble.update();
+  
+})
+
+channel.bind("a",data =>{
+  console.log("llegó");
 })
 
 channel.bind('addNumber', data => {
