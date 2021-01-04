@@ -1,0 +1,13 @@
+$ go get github.com/labstack/echo
+$ go get github.com/labstack/echo/middleware
+$ go get github.com/pusher/pusher-http-go
+
+
+//pusher credentials
+app_id = "1118979"
+key = "7befe6ab035a03a2ada9"
+secret = "1605eea01f08a987d955"
+cluster = "us2"
+
+
+asd
