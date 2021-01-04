@@ -58,7 +58,6 @@ func generateRandom(wg *sync.WaitGroup, channel chan int, arrayChannel chan []in
 
 // Función que ejecuta el bubblesort
 func BubbleSort(wg *sync.WaitGroup, randomArray []int, bubbleArray chan []int) {
-	fmt.Println("BubbleSort\n")
 	for true { //ciclo que atravieza el array multiples veces hasta no necesitar mas cambios
 		var num1 = 0 //declaracion de variables
 		var num2 = 1
@@ -189,7 +188,6 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan 
 	var num1 = 1
 	var numAux = 0 //declaracion de variables
 	var guardado = 0
-	fmt.Println("\nInsertion Sort\n")
 	for num1 < len(randomArray) { //recorrida iteratiba sobre el array
 		posiciones := []int{}
 		posiciones = append(posiciones, num1)
@@ -211,6 +209,9 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan 
 			}
 			if numAux-1 == 0 {
 				randomArray[numAux-1] = guardado
+				posiciones = append(posiciones, numAux-1)
+				insertionChannel <- posiciones
+				<-insertionChannel
 			}
 			numAux--
 		}
@@ -248,8 +249,8 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //met
 			auxiliar = array[ladoIzq] //se mueve el numero del indice al final del subarray
 			array[ladoIzq] = array[i] //de menores a la izquierda, y se actualiza la variable
 			array[i] = auxiliar       //representando el final del mismo
-			posiciones = append(posiciones, 0)
-			posiciones = append(posiciones, 0)
+			posiciones = append(posiciones, ladoIzq)
+			posiciones = append(posiciones, i)
 			quickChannel <- posiciones
 			<-quickChannel
 			ladoIzq++
@@ -260,8 +261,8 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //met
 	auxiliar = array[ladoIzq]
 	array[ladoIzq] = array[ladoDer] //El pivote se mueve al final del subarray de la izquierda
 	array[ladoDer] = auxiliar
-	posiciones = append(posiciones, 0)
-	posiciones = append(posiciones, 0)
+	posiciones = append(posiciones, ladoIzq)
+	posiciones = append(posiciones, ladoDer)
 	quickChannel <- posiciones
 	<-quickChannel
 	QuickSort(wg, array[:ladoIzq], quickChannel) //Llamadas recursivas para ambos subarrays
@@ -287,7 +288,10 @@ func TempGraficarBubble(bubbleChannel chan []int) {
 func TempGraficarQuick(quickChannel chan []int) {
 	posicCamb := []int{}
 	for true {
+		fmt.Print("Q Entro")
 		posicCamb = <-quickChannel
+		fmt.Print(posicCamb[0])
+		fmt.Print(posicCamb[1])
 		if posicCamb[0] == 0 && posicCamb[1] == 0 {
 			quickChannel <- posicCamb
 			break
@@ -372,10 +376,11 @@ func main() {
 	go TempGraficarQuick(quickChannel)
 	go QuickSort(&waitGroup, arr3, quickChannel) //InsetionSort al segundo Array
 
+	waitGroup.Add(1)
 	waitGroup.Wait()
 	//heapsort(arr3)
 	//fmt.Println("QuickSort")
-	//QuickSort(arr4, randomch) //Quicksort sin corrutinas al tercer Array
+	QuickSort(arr4, randomch) //Quicksort sin corrutinas al tercer Array
 
 	fmt.Println("\nSorted Arrays")
 	fmt.Println(arr)
