@@ -22,7 +22,6 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan 
 	var num1 = 1
 	var numAux = 0 //declaracion de variables
 	var guardado = 0
-	fmt.Println("\nInsertion Sort\n")
 	for num1 < len(randomArray) { //recorrida iteratiba sobre el array
 		posiciones := []int{}
 		posiciones = append(posiciones, num1)
@@ -44,6 +43,9 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan 
 			}
 			if numAux-1 == 0 {
 				randomArray[numAux-1] = guardado
+				posiciones = append(posiciones, numAux-1)
+				insertionChannel <- posiciones
+				<-insertionChannel
 			}
 			numAux--
 		}
