@@ -227,17 +227,12 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan 
 }
 
 // Función encargade de realizar el quicksort
-func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //metodo recursivo con pivote al final
+func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoIndice int, wgEnd int) { //metodo recursivo con pivote al final
 	if len(array) < 2 {
 		//fmt.Println("Fin")		//condicion de salida
-		posiciones := []int{}
-		posiciones = append(posiciones, 0)
-		posiciones = append(posiciones, 0)
-		quickChannel <- posiciones
-		<-quickChannel
 		return
 	}
-
+	wgEnd = wgEnd + 1
 	//fmt.Println("Entra")
 	ladoIzq := 0
 	ladoDer := len(array) - 1 //declaracion de variables
@@ -249,10 +244,12 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //met
 			auxiliar = array[ladoIzq] //se mueve el numero del indice al final del subarray
 			array[ladoIzq] = array[i] //de menores a la izquierda, y se actualiza la variable
 			array[i] = auxiliar       //representando el final del mismo
-			posiciones = append(posiciones, ladoIzq)
-			posiciones = append(posiciones, i)
+			posiciones = append(posiciones, i+ultimoIndice)
+			posiciones = append(posiciones, ladoIzq+ultimoIndice)
 			quickChannel <- posiciones
 			<-quickChannel
+			time.Sleep(50 * time.Millisecond)
+			posiciones = nil
 			ladoIzq++
 
 		}
@@ -261,12 +258,17 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //met
 	auxiliar = array[ladoIzq]
 	array[ladoIzq] = array[ladoDer] //El pivote se mueve al final del subarray de la izquierda
 	array[ladoDer] = auxiliar
-	posiciones = append(posiciones, ladoIzq)
-	posiciones = append(posiciones, ladoDer)
+	posiciones = append(posiciones, ladoIzq+ultimoIndice)
+	posiciones = append(posiciones, ladoDer+ultimoIndice)
 	quickChannel <- posiciones
 	<-quickChannel
-	QuickSort(wg, array[:ladoIzq], quickChannel) //Llamadas recursivas para ambos subarrays
-	QuickSort(wg, array[ladoIzq+1:], quickChannel)
+	time.Sleep(50 * time.Millisecond)
+	posiciones = nil
+	QuickSort(wg, array[:ladoIzq], quickChannel, ultimoIndice, wgEnd) //Llamadas recursivas para ambos subarrays
+	QuickSort(wg, array[ladoIzq+1:], quickChannel, ultimoIndice+ladoIzq+1, wgEnd)
+	if wgEnd == 1 {
+		defer wg.Done()
+	}
 }
 
 func TempGraficarBubble(bubbleChannel chan []int) {
@@ -288,14 +290,11 @@ func TempGraficarBubble(bubbleChannel chan []int) {
 func TempGraficarQuick(quickChannel chan []int) {
 	posicCamb := []int{}
 	for true {
-		fmt.Print("Q Entro")
 		posicCamb = <-quickChannel
-		fmt.Print(posicCamb[0])
-		fmt.Print(posicCamb[1])
-		if posicCamb[0] == 0 && posicCamb[1] == 0 {
-			quickChannel <- posicCamb
-			break
-		}
+		// if posicCamb[0] == 0 && posicCamb[1] == 0 {
+		// 	quickChannel <- posicCamb
+		// 	break
+		// }
 		fmt.Print(posicCamb[0])
 		fmt.Print(" ")
 		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
@@ -332,7 +331,6 @@ func CopyArray(arrOri []int) []int {
 }
 
 func main() {
-
 	var size int
 	for true {
 		fmt.Println("Ingrese cuantos números desea [10,10000]")
@@ -347,7 +345,7 @@ func main() {
 	arrayChannel := make(chan []int, 1)
 	bubbleChannel := make(chan []int, 1)
 	insertionChannel := make(chan []int, 1)
-	//heapChannel := make(chan []int, 1)
+	// //heapChannel := make(chan []int, 1)
 	quickChannel := make(chan []int, 1)
 
 	arr := []int{}
@@ -368,19 +366,18 @@ func main() {
 	arr4 = CopyArray(arr3) //copia el array
 	fmt.Println(arr4)
 
-	waitGroup.Add(2)
+	waitGroup.Add(3)
 	go TempGraficarBubble(bubbleChannel)
 	go BubbleSort(&waitGroup, arr, bubbleChannel) //BubbleSort al primer Array
 	go TempGraficarInsertion(insertionChannel)
 	go InsertionSort(&waitGroup, arr2, insertionChannel) //InsetionSort al segundo Array
 	go TempGraficarQuick(quickChannel)
-	go QuickSort(&waitGroup, arr3, quickChannel) //InsetionSort al segundo Array
-
-	waitGroup.Add(1)
+	go QuickSort(&waitGroup, arr3, quickChannel, 0, 0) //InsetionSort al segundo Array
 	waitGroup.Wait()
 	//heapsort(arr3)
 	//fmt.Println("QuickSort")
-	QuickSort(arr4, randomch) //Quicksort sin corrutinas al tercer Array
+	//arr5 := []int{2, 5, 12, 16, 20, 27, 28, 29, 29, 31}
+	//QuickSort2(arr3, 0) //Quicksort sin corrutinas al tercer Array
 
 	fmt.Println("\nSorted Arrays")
 	fmt.Println(arr)
