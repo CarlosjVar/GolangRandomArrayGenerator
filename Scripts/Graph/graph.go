@@ -190,6 +190,10 @@ func TempGraficarInsertion(insertionChannel chan []int) {
 			insertionChannel <- posicCamb
 			break
 		}
+		fmt.Print(posicCamb[0])
+		fmt.Print(" ")
+		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
+		fmt.Println(" " + "InsertionSort")
 		client.Trigger("ArrayChannel", "insertion", posicCamb)
 		insertionChannel <- posicCamb
 	}
