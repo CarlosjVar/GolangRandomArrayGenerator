@@ -18,6 +18,116 @@ type datos struct {
 	pos2 int
 }
 
+// Estructura del heap
+type maxheap struct {
+	arr []int
+}
+
+// Crea una estructura de heap
+func newMaxHeap(arr []int) *maxheap {
+	maxheap := &maxheap{
+		arr: arr,
+	}
+	return maxheap
+}
+
+// Retorna el índice del hijo izquierdo de un nodo
+func (m *maxheap) indiceIzquierdo(index int) int {
+	return 2*index + 1
+}
+
+// Retorna el índice del hijo derecho de un nodo
+func (m *maxheap) indiceDerecho(index int) int {
+	return 2*index + 2
+}
+
+// Intercambia 2 elementos de un array entre si
+func (m *maxheap) swap(primero, segundo int) {
+	m.arr[primero], m.arr[segundo] = m.arr[segundo], m.arr[primero]
+}
+
+func (m *maxheap) leaf(index int, lenght int) bool {
+	if index >= (lenght/2) && index <= lenght {
+		return true
+	}
+	return false
+}
+
+// Se encarga de hacer un heap a partir de un array , esto comparando la raíz con sus hijos , si alguno de ellos es más grande que la raíz se intercambia su posición
+func (m *maxheap) heapify(current int, lenght int) {
+	if m.leaf(current, lenght) {
+		return
+	}
+	mayor := current
+	indiceIzquierdo := m.indiceIzquierdo(current)
+	rightRightIndex := m.indiceDerecho(current)
+	if indiceIzquierdo < lenght && m.arr[indiceIzquierdo] > m.arr[mayor] {
+		mayor = indiceIzquierdo
+	}
+	if rightRightIndex < lenght && m.arr[rightRightIndex] > m.arr[mayor] {
+		mayor = rightRightIndex
+	}
+	if mayor != current {
+		m.swap(current, mayor)
+		m.heapify(mayor, lenght)
+	}
+	return
+}
+
+// Recibe un array y lo convierte en un maxHeap
+func (m *maxheap) buildMaxHeap(lenght int) {
+	for index := ((lenght / 2) - 1); index >= 0; index-- {
+		m.heapify(index, lenght)
+	}
+}
+
+// Sortea el max heap , esto mediante el método de tomar la raíz , que es el mayor y lo envía al final
+func (m *maxheap) sort(lenght int, start time.Time) {
+	m.buildMaxHeap(lenght)
+	for i := lenght - 1; i > 0; i-- {
+		// Obtiene la raíz y la "elimina " del heap
+		m.swap(0, i)
+		m.heapify(0, i)
+	}
+
+	//fmt.Print(time.Since(start))
+}
+
+// Función para imprimir el heap
+func (m *maxheap) print() {
+	for _, val := range m.arr {
+		fmt.Println(val)
+	}
+}
+
+// Función que se encarga del proceso
+func heapsort(array []int) {
+	start := time.Now()
+	fmt.Println("Heapsort \n")
+	minHeap := newMaxHeap(array)
+	minHeap.sort(len(array), start)
+
+	// minHeap.print()
+}
+
+//Función graficadora del heapsort
+func TempGraficarHeap(insertionChannel chan []int) {
+	posicCamb := []int{}
+	for true {
+		posicCamb = <-insertionChannel
+		if posicCamb[0] == 0 && posicCamb[1] == 0 {
+			insertionChannel <- posicCamb
+			break
+		}
+		fmt.Print(posicCamb[0])
+		fmt.Print(" ")
+		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
+		fmt.Println(" " + "InsertionSort")
+		client.Trigger("ArrayChannel", "insertion", posicCamb)
+		insertionChannel <- posicCamb
+	}
+}
+
 func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan []int) {
 	var num1 = 1
 	var numAux = 0 //declaracion de variables
@@ -76,17 +186,12 @@ func TempGraficarInsertion(insertionChannel chan []int) {
 }
 
 // Función encargade de realizar el quicksort
-func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //metodo recursivo con pivote al final
+func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoIndice int, wgEnd int) { //metodo recursivo con pivote al final
 	if len(array) < 2 {
 		//fmt.Println("Fin")		//condicion de salida
-		posiciones := []int{}
-		posiciones = append(posiciones, 0)
-		posiciones = append(posiciones, 0)
-		quickChannel <- posiciones
-		<-quickChannel
 		return
 	}
-
+	wgEnd = wgEnd + 1
 	//fmt.Println("Entra")
 	ladoIzq := 0
 	ladoDer := len(array) - 1 //declaracion de variables
@@ -98,10 +203,12 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //met
 			auxiliar = array[ladoIzq] //se mueve el numero del indice al final del subarray
 			array[ladoIzq] = array[i] //de menores a la izquierda, y se actualiza la variable
 			array[i] = auxiliar       //representando el final del mismo
-			posiciones = append(posiciones, 0)
-			posiciones = append(posiciones, 0)
+			posiciones = append(posiciones, i+ultimoIndice)
+			posiciones = append(posiciones, ladoIzq+ultimoIndice)
 			quickChannel <- posiciones
 			<-quickChannel
+			time.Sleep(35 * time.Millisecond)
+			posiciones = nil
 			ladoIzq++
 
 		}
@@ -110,12 +217,17 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int) { //met
 	auxiliar = array[ladoIzq]
 	array[ladoIzq] = array[ladoDer] //El pivote se mueve al final del subarray de la izquierda
 	array[ladoDer] = auxiliar
-	posiciones = append(posiciones, 0)
-	posiciones = append(posiciones, 0)
+	posiciones = append(posiciones, ladoIzq+ultimoIndice)
+	posiciones = append(posiciones, ladoDer+ultimoIndice)
 	quickChannel <- posiciones
 	<-quickChannel
-	QuickSort(wg, array[:ladoIzq], quickChannel) //Llamadas recursivas para ambos subarrays
-	QuickSort(wg, array[ladoIzq+1:], quickChannel)
+	time.Sleep(35 * time.Millisecond)
+	posiciones = nil
+	QuickSort(wg, array[:ladoIzq], quickChannel, ultimoIndice, wgEnd) //Llamadas recursivas para ambos subarrays
+	QuickSort(wg, array[ladoIzq+1:], quickChannel, ultimoIndice+ladoIzq+1, wgEnd)
+	if wgEnd == 1 {
+		defer wg.Done()
+	}
 }
 func BubbleSort(wg *sync.WaitGroup, randomArray []int, bubbleArray chan []int) {
 	fmt.Println("BubbleSort\n")
@@ -160,10 +272,7 @@ func TempGraficarBubble(bubbleChannel chan []int) {
 			bubbleChannel <- posicCamb
 			break
 		}
-		fmt.Print(posicCamb[0])
-		fmt.Print(" ")
-		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
-		fmt.Println(" " + "BubbleSort")
+
 		client.Trigger("ArrayChannel", "bubble", posicCamb)
 		bubbleChannel <- posicCamb
 	}
@@ -173,17 +282,15 @@ func TempGraficarQuick(quickChannel chan []int) {
 	posicCamb := []int{}
 	for true {
 		posicCamb = <-quickChannel
-		if posicCamb[0] == 0 && posicCamb[1] == 0 {
-			quickChannel <- posicCamb
-			break
-		}
-
+		// if posicCamb[0] == 0 && posicCamb[1] == 0 {
+		// 	quickChannel <- posicCamb
+		// 	break
+		// }
 		fmt.Print(posicCamb[0])
 		fmt.Print(" ")
 		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
 		fmt.Println(" " + "QuickSort")
-		s := datos{pos1: posicCamb[0], pos2: posicCamb[1]}
-		client.Trigger("ArrayChannel", "insertion", s)
+		client.Trigger("ArrayChannel", "quick", posicCamb)
 		quickChannel <- posicCamb
 	}
 }
@@ -252,24 +359,28 @@ func generate(c echo.Context) error {
 	waitGroup.Wait()
 	arr1 := []int{}
 	arr2 := []int{}
-	// arr3 := []int{}
-	// arr4 := []int{}
+	arr3 := []int{}
+	arr4 := []int{}
 	fmt.Println("Unsorted Arrays")
 	arr1 = <-arrayChannel  //saca el array del channel
 	arr2 = CopyArray(arr1) //copia el array
+	arr3 = CopyArray(arr2) //copia el array
+	arr4 = CopyArray(arr3) //copia el array
 
-	// arr3 = CopyArray(arr2) //copia el array
-
-	// arr4 = CopyArray(arr3) //copia el array
-
-	// quickChannel := make(chan []int, 1)
+	quickChannel := make(chan []int, 1)
 	insertionChannel := make(chan []int, 1)
 	bubbleChannel := make(chan []int, 1)
-	waitGroup.Add(2)
+	heapChannel := make(chan []int, 1)
+	waitGroup.Add(3)
 	go TempGraficarInsertion(insertionChannel)
 	go InsertionSort(&waitGroup, arr1, insertionChannel) //InsetionSort al segundo Array
 	go TempGraficarBubble(bubbleChannel)
 	go BubbleSort(&waitGroup, arr2, bubbleChannel) //BubbleSort al primer Array
+	go TempGraficarQuick(quickChannel)
+	go QuickSort(&waitGroup, arr3, quickChannel, 0, 0) //InsetionSort al segundo Array
+
+	go Heapsort(s)
+
 	waitGroup.Wait()
 
 	// go TempGraficarQuick(quickChannel)

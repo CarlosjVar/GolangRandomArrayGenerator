@@ -41,7 +41,6 @@ const channel = pusher.subscribe('ArrayChannel');
 
 
 channel.bind("insertion",data =>{
-  console.log(ChartInsertion.data.datasets[0].data);
   var a = ChartInsertion.data.datasets[0].data[data[0]];
 
 
@@ -64,7 +63,6 @@ channel.bind("insertion",data =>{
     ChartInsertion.data.datasets[0].data[to] = temp;  
 
   ChartInsertion.update();
-  console.log( "insertion");
   
 })
 
@@ -75,6 +73,17 @@ channel.bind("bubble",data =>{
   ChartBubble.data.datasets[0].data[from] = ChartBubble.data.datasets[0].data[to];
   ChartBubble.data.datasets[0].data[to] = a ;
   ChartBubble.update();
+  
+})
+
+channel.bind("quick",data =>{
+  console.log(data)
+  var from = data[0]
+  var to= data[1]
+  var a = ChartQuick.data.datasets[0].data[from];
+  ChartQuick.data.datasets[0].data[from] = ChartQuick.data.datasets[0].data[to];
+  ChartQuick.data.datasets[0].data[to] = a ;
+  ChartQuick.update();
   
 })
 
