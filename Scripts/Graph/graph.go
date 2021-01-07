@@ -54,7 +54,7 @@ func (m *maxheap) leaf(index int, lenght int) bool {
 }
 
 // Se encarga de hacer un heap a partir de un array , esto comparando la raíz con sus hijos , si alguno de ellos es más grande que la raíz se intercambia su posición
-func (m *maxheap) heapify(current int, lenght int) {
+func (m *maxheap) heapify(current int, lenght int, heapChannel chan []int) {
 	if m.leaf(current, lenght) {
 		return
 	}
@@ -69,26 +69,40 @@ func (m *maxheap) heapify(current int, lenght int) {
 	}
 	if mayor != current {
 		m.swap(current, mayor)
-		m.heapify(mayor, lenght)
+		posiciones := []int{}
+		posiciones = append(posiciones, current)
+		posiciones = append(posiciones, mayor)
+		heapChannel <- posiciones
+		<-heapChannel
+		time.Sleep(10 * time.Millisecond)
+		m.heapify(mayor, lenght, heapChannel)
 	}
 	return
 }
 
 // Recibe un array y lo convierte en un maxHeap
-func (m *maxheap) buildMaxHeap(lenght int) {
+func (m *maxheap) buildMaxHeap(lenght int, heapChannel chan []int) {
 	for index := ((lenght / 2) - 1); index >= 0; index-- {
-		m.heapify(index, lenght)
+		m.heapify(index, lenght, heapChannel)
 	}
 }
 
 // Sortea el max heap , esto mediante el método de tomar la raíz , que es el mayor y lo envía al final
-func (m *maxheap) sort(lenght int, start time.Time) {
-	m.buildMaxHeap(lenght)
+func (m *maxheap) sort(lenght int, start time.Time, wg *sync.WaitGroup, heapChannel chan []int) {
+	m.buildMaxHeap(lenght, heapChannel)
 	for i := lenght - 1; i > 0; i-- {
 		// Obtiene la raíz y la "elimina " del heap
+		posiciones := []int{}
 		m.swap(0, i)
-		m.heapify(0, i)
+		posiciones = append(posiciones, 0)
+		posiciones = append(posiciones, i)
+		heapChannel <- posiciones
+		<-heapChannel
+		time.Sleep(10 * time.Millisecond)
+		m.heapify(0, i, heapChannel)
 	}
+
+	defer wg.Done()
 
 	//fmt.Print(time.Since(start))
 }
@@ -101,30 +115,30 @@ func (m *maxheap) print() {
 }
 
 // Función que se encarga del proceso
-func heapsort(array []int) {
+func heapsort(wg *sync.WaitGroup, array []int, heapChannel chan []int) {
 	start := time.Now()
 	fmt.Println("Heapsort \n")
 	minHeap := newMaxHeap(array)
-	minHeap.sort(len(array), start)
+	minHeap.sort(len(array), start, wg, heapChannel)
 
 	// minHeap.print()
 }
 
 //Función graficadora del heapsort
-func TempGraficarHeap(insertionChannel chan []int) {
+func TempGraficarHeap(heapChannel chan []int) {
 	posicCamb := []int{}
 	for true {
-		posicCamb = <-insertionChannel
+		posicCamb = <-heapChannel
 		if posicCamb[0] == 0 && posicCamb[1] == 0 {
-			insertionChannel <- posicCamb
+			heapChannel <- posicCamb
 			break
 		}
 		fmt.Print(posicCamb[0])
 		fmt.Print(" ")
 		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
-		fmt.Println(" " + "InsertionSort")
-		client.Trigger("ArrayChannel", "insertion", posicCamb)
-		insertionChannel <- posicCamb
+		fmt.Println(" " + "HeapSort")
+		client.Trigger("ArrayChannel", "heap", posicCamb)
+		heapChannel <- posicCamb
 	}
 }
 
@@ -176,10 +190,6 @@ func TempGraficarInsertion(insertionChannel chan []int) {
 			insertionChannel <- posicCamb
 			break
 		}
-		fmt.Print(posicCamb[0])
-		fmt.Print(" ")
-		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
-		fmt.Println(" " + "InsertionSort")
 		client.Trigger("ArrayChannel", "insertion", posicCamb)
 		insertionChannel <- posicCamb
 	}
@@ -286,10 +296,6 @@ func TempGraficarQuick(quickChannel chan []int) {
 		// 	quickChannel <- posicCamb
 		// 	break
 		// }
-		fmt.Print(posicCamb[0])
-		fmt.Print(" ")
-		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
-		fmt.Println(" " + "QuickSort")
 		client.Trigger("ArrayChannel", "quick", posicCamb)
 		quickChannel <- posicCamb
 	}
@@ -371,15 +377,15 @@ func generate(c echo.Context) error {
 	insertionChannel := make(chan []int, 1)
 	bubbleChannel := make(chan []int, 1)
 	heapChannel := make(chan []int, 1)
-	waitGroup.Add(3)
+	waitGroup.Add(4)
 	go TempGraficarInsertion(insertionChannel)
 	go InsertionSort(&waitGroup, arr1, insertionChannel) //InsetionSort al segundo Array
 	go TempGraficarBubble(bubbleChannel)
 	go BubbleSort(&waitGroup, arr2, bubbleChannel) //BubbleSort al primer Array
 	go TempGraficarQuick(quickChannel)
 	go QuickSort(&waitGroup, arr3, quickChannel, 0, 0) //InsetionSort al segundo Array
-
-	go Heapsort(s)
+	go TempGraficarHeap(heapChannel)
+	go heapsort(&waitGroup, arr4, heapChannel)
 
 	waitGroup.Wait()
 

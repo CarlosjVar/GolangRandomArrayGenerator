@@ -77,13 +77,23 @@ channel.bind("bubble",data =>{
 })
 
 channel.bind("quick",data =>{
-  console.log(data)
   var from = data[0]
   var to= data[1]
   var a = ChartQuick.data.datasets[0].data[from];
   ChartQuick.data.datasets[0].data[from] = ChartQuick.data.datasets[0].data[to];
   ChartQuick.data.datasets[0].data[to] = a ;
   ChartQuick.update();
+  
+})
+
+channel.bind("heap",data =>{
+  console.log(data)
+  var from = data[0]
+  var to= data[1]
+  var a = ChartHeap.data.datasets[0].data[from];
+  ChartHeap.data.datasets[0].data[from] = ChartHeap.data.datasets[0].data[to];
+  ChartHeap.data.datasets[0].data[to] = a ;
+  ChartHeap.update();
   
 })
 
