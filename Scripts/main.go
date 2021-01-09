@@ -185,31 +185,51 @@ func heapsort(array []int) {
 
 // Función encargada de ejecutar el insertionsort
 func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan []int) {
+	var tiempoIni = time.Now()
+	var tiempoFinal = time.Now()
 	var num1 = 1
 	var numAux = 0 //declaracion de variables
 	var guardado = 0
+	var ciclos = 0
+	var condicionales = 0
+	var intercambios = 0
 	for num1 < len(randomArray) { //recorrida iteratiba sobre el array
+		ciclos++
 		posiciones := []int{}
 		posiciones = append(posiciones, num1)
 		numAux = num1
 		guardado = randomArray[num1]
 		var cambio = false
 		for numAux > 0 { //iteracion para devolver un indice hasta donde sea necesario en el array
+			ciclos++
 			if guardado < randomArray[numAux-1] {
+				condicionales++
 				randomArray[numAux] = randomArray[numAux-1] //si el numero anterior es mayor inicia cambio de posiciones
 				cambio = true                               //condicional usado para saber si el numero debe seguir siendo movido o nunca sera necesario
+				intercambios++
 			} else if cambio {
+				condicionales++
+				intercambios++
 				randomArray[numAux] = guardado          // si en algun momento hubo algun cambio pero ya no es necesario
 				posiciones = append(posiciones, numAux) // significa que es el lugar dode el numero debe permanecer
+				posiciones = append(posiciones, ciclos)
+				posiciones = append(posiciones, condicionales)
+				posiciones = append(posiciones, intercambios)
 				insertionChannel <- posiciones
 				<-insertionChannel
 				break
 			} else {
+				condicionales++
 				numAux = -1 //de no haber habido un cambio nunca se cancela el ciclo para el numero actual
 			}
 			if numAux-1 == 0 {
+				condicionales++
+				intercambios++
 				randomArray[numAux-1] = guardado
 				posiciones = append(posiciones, numAux-1)
+				posiciones = append(posiciones, ciclos)
+				posiciones = append(posiciones, condicionales)
+				posiciones = append(posiciones, intercambios)
 				insertionChannel <- posiciones
 				<-insertionChannel
 			}
@@ -218,8 +238,14 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan 
 		num1++
 	}
 	posiciones := []int{}
+	tiempoFinal = time.Now()
 	posiciones = append(posiciones, 0)
 	posiciones = append(posiciones, 0)
+	posiciones = append(posiciones, ciclos)
+	posiciones = append(posiciones, condicionales)
+	posiciones = append(posiciones, intercambios)
+	print(tiempoIni.Format("2006-01-02 15:04:05"))
+	print(tiempoFinal.Format("2006-01-02 15:04:05"))
 	insertionChannel <- posiciones
 	<-insertionChannel
 	defer wg.Done()
@@ -227,8 +253,11 @@ func InsertionSort(wg *sync.WaitGroup, randomArray []int, insertionChannel chan 
 }
 
 // Función encargade de realizar el quicksort
-func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoIndice int, wgEnd int) { //metodo recursivo con pivote al final
+func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoIndice int, wgEnd int, ciclos int, condicionales int, intercambios int) { //metodo recursivo con pivote al final
+	var tiempoIni = time.Now()
+	print(tiempoIni.Format("2006-01-02 15:04:05"))
 	if len(array) < 2 {
+		condicionales++
 		//fmt.Println("Fin")		//condicion de salida
 		return
 	}
@@ -240,33 +269,47 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoI
 	posiciones := []int{}
 
 	for i, _ := range array {
+		ciclos++
 		if array[i] < array[ladoDer] { //Si el numero en el indice actual en menor al pivote
+			condicionales++
 			auxiliar = array[ladoIzq] //se mueve el numero del indice al final del subarray
 			array[ladoIzq] = array[i] //de menores a la izquierda, y se actualiza la variable
 			array[i] = auxiliar       //representando el final del mismo
-			posiciones = append(posiciones, i+ultimoIndice)
-			posiciones = append(posiciones, ladoIzq+ultimoIndice)
-			quickChannel <- posiciones
-			<-quickChannel
-			time.Sleep(50 * time.Millisecond)
-			posiciones = nil
+			if (i + ultimoIndice) != (ladoIzq + ultimoIndice) {
+				intercambios++
+				posiciones = append(posiciones, i+ultimoIndice)
+				posiciones = append(posiciones, ladoIzq+ultimoIndice)
+				posiciones = append(posiciones, ciclos)
+				posiciones = append(posiciones, condicionales)
+				posiciones = append(posiciones, intercambios)
+				quickChannel <- posiciones
+				<-quickChannel
+				time.Sleep(50 * time.Millisecond)
+				posiciones = nil
+			}
 			ladoIzq++
-
 		}
 	}
 
 	auxiliar = array[ladoIzq]
 	array[ladoIzq] = array[ladoDer] //El pivote se mueve al final del subarray de la izquierda
 	array[ladoDer] = auxiliar
+	intercambios++
 	posiciones = append(posiciones, ladoIzq+ultimoIndice)
 	posiciones = append(posiciones, ladoDer+ultimoIndice)
+	posiciones = append(posiciones, ciclos)
+	posiciones = append(posiciones, condicionales)
+	posiciones = append(posiciones, intercambios)
 	quickChannel <- posiciones
 	<-quickChannel
 	time.Sleep(50 * time.Millisecond)
 	posiciones = nil
-	QuickSort(wg, array[:ladoIzq], quickChannel, ultimoIndice, wgEnd) //Llamadas recursivas para ambos subarrays
-	QuickSort(wg, array[ladoIzq+1:], quickChannel, ultimoIndice+ladoIzq+1, wgEnd)
+	QuickSort(wg, array[:ladoIzq], quickChannel, ultimoIndice, wgEnd, ciclos, condicionales, intercambios) //Llamadas recursivas para ambos subarrays
+	QuickSort(wg, array[ladoIzq+1:], quickChannel, ultimoIndice+ladoIzq+1, wgEnd, ciclos, condicionales, intercambios)
 	if wgEnd == 1 {
+		condicionales++
+		var tiempoFinal = time.Now()
+		print(tiempoFinal.Format("2006-01-02 15:04:05"))
 		defer wg.Done()
 	}
 }
@@ -298,6 +341,12 @@ func TempGraficarQuick(quickChannel chan []int) {
 		fmt.Print(posicCamb[0])
 		fmt.Print(" ")
 		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
+		fmt.Print(" ")
+		fmt.Print(posicCamb[2])
+		fmt.Print(" ")
+		fmt.Print(posicCamb[3])
+		fmt.Print(" ")
+		fmt.Print(posicCamb[4])
 		fmt.Println(" " + "QuickSort")
 		quickChannel <- posicCamb
 	}
@@ -308,12 +357,23 @@ func TempGraficarInsertion(insertionChannel chan []int) {
 	for true {
 		posicCamb = <-insertionChannel
 		if posicCamb[0] == 0 && posicCamb[1] == 0 {
+			fmt.Print(posicCamb[2])
+			fmt.Print(" ")
+			fmt.Print(posicCamb[3])
+			fmt.Print(" ")
+			fmt.Print(posicCamb[4])
 			insertionChannel <- posicCamb
 			break
 		}
 		fmt.Print(posicCamb[0])
 		fmt.Print(" ")
 		fmt.Print(posicCamb[1]) //Prueba, en el futuro va a ser el que obtiene para graficar
+		fmt.Print(" ")
+		fmt.Print(posicCamb[2])
+		fmt.Print(" ")
+		fmt.Print(posicCamb[3])
+		fmt.Print(" ")
+		fmt.Print(posicCamb[4])
 		fmt.Println(" " + "InsertionSort")
 		insertionChannel <- posicCamb
 	}
@@ -372,7 +432,7 @@ func main() {
 	go TempGraficarInsertion(insertionChannel)
 	go InsertionSort(&waitGroup, arr2, insertionChannel) //InsetionSort al segundo Array
 	go TempGraficarQuick(quickChannel)
-	go QuickSort(&waitGroup, arr3, quickChannel, 0, 0) //InsetionSort al segundo Array
+	go QuickSort(&waitGroup, arr3, quickChannel, 0, 0, 0, 0, 0) //InsetionSort al segundo Array
 	waitGroup.Wait()
 	//heapsort(arr3)
 	//fmt.Println("QuickSort")
