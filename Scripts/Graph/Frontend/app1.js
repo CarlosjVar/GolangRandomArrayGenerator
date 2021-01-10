@@ -11,7 +11,7 @@ document.getElementById("comenzar").addEventListener("click", function(){
 
   axios.get(`/start`)
 })
-
+intercambio = 0
 
 function array_move(arr, old_index, new_index) {
   if (new_index >= arr.length) {
@@ -24,7 +24,6 @@ function array_move(arr, old_index, new_index) {
 };
 
 // returns [2, 1, 3]
-console.log(array_move([1, 2, 3], 0, 1)); 
 
 document.addEventListener("DOMContentLoaded", function() {
   console.log("Hola");
@@ -38,6 +37,31 @@ const pusher = new Pusher('7befe6ab035a03a2ada9', {
 });
 
 const channel = pusher.subscribe('ArrayChannel');
+
+
+channel.bind("heapStats",data =>{
+  console.log("heap");
+  console.log(data);
+  console.log(intercambio);
+})
+
+channel.bind("bubbleStats",data =>{
+
+  // console.log("Burbuja");
+  // console.log(data);
+})
+channel.bind("quickStats",data =>{
+
+  console.log("quick");
+  console.log(data);
+})
+
+channel.bind("insertionStats",data =>{
+
+  // console.log("Insertion");
+  // console.log(data);
+})
+
 
 
 channel.bind("insertion",data =>{
@@ -87,7 +111,7 @@ channel.bind("quick",data =>{
 })
 
 channel.bind("heap",data =>{
-  console.log(data)
+  intercambio++
   var from = data[0]
   var to= data[1]
   var a = ChartHeap.data.datasets[0].data[from];
@@ -97,12 +121,16 @@ channel.bind("heap",data =>{
   
 })
 
-channel.bind("a",data =>{
-  console.log("llegó");
-})
 
 channel.bind('addNumber', data => {
-
+  ChartBubble.data.labels=[]
+  ChartBubble.data.datasets[0].data=[]
+  ChartInsertion.data.labels=[]
+  ChartInsertion.data.datasets[0].data=[]
+  ChartHeap.data.labels=[]
+  ChartHeap.data.datasets[0].data=[]
+  ChartQuick.data.labels=[]
+  ChartQuick.data.datasets[0].data=[]
 
     data.forEach(function (value, i){
         
