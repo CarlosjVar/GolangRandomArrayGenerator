@@ -7,11 +7,11 @@ import (
 )
 
 // Función encargade de realizar el quicksort
-func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoIndice int, wgEnd int, ciclos int, condicionales int, intercambios int) { //metodo recursivo con pivote al final
+func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoIndice int, wgEnd int, ciclos *int, condicionales *int, intercambios *int) { //metodo recursivo con pivote al final
 	var tiempoIni = time.Now()
 	print(tiempoIni.Format("2006-01-02 15:04:05"))
 	if len(array) < 2 {
-		condicionales++
+		*condicionales++
 		//fmt.Println("Fin")		//condicion de salida
 		return
 	}
@@ -23,14 +23,14 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoI
 	posiciones := []int{}
 
 	for i, _ := range array {
-		ciclos++
+		*ciclos++
 		if array[i] < array[ladoDer] { //Si el numero en el indice actual en menor al pivote
-			condicionales++
+			*condicionales++
 			auxiliar = array[ladoIzq] //se mueve el numero del indice al final del subarray
 			array[ladoIzq] = array[i] //de menores a la izquierda, y se actualiza la variable
 			array[i] = auxiliar       //representando el final del mismo
 			if (i + ultimoIndice) != (ladoIzq + ultimoIndice) {
-				intercambios++
+				*intercambios++
 				posiciones = append(posiciones, i+ultimoIndice)
 				posiciones = append(posiciones, ladoIzq+ultimoIndice)
 				quickChannel <- posiciones
@@ -45,7 +45,7 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoI
 	auxiliar = array[ladoIzq]
 	array[ladoIzq] = array[ladoDer] //El pivote se mueve al final del subarray de la izquierda
 	array[ladoDer] = auxiliar
-	intercambios++
+	*intercambios++
 	posiciones = append(posiciones, ladoIzq+ultimoIndice)
 	posiciones = append(posiciones, ladoDer+ultimoIndice)
 	quickChannel <- posiciones
@@ -55,10 +55,10 @@ func QuickSort(wg *sync.WaitGroup, array []int, quickChannel chan []int, ultimoI
 	QuickSort(wg, array[:ladoIzq], quickChannel, ultimoIndice, wgEnd, ciclos, condicionales, intercambios) //Llamadas recursivas para ambos subarrays
 	QuickSort(wg, array[ladoIzq+1:], quickChannel, ultimoIndice+ladoIzq+1, wgEnd, ciclos, condicionales, intercambios)
 	if wgEnd == 1 {
-		condicionales++
+		*condicionales++
 		var tiempoFinal = time.Now()
 		dato := []string{}
-		dato = append(dato, strconv.Itoa(intercambios), strconv.Itoa(condicionales), strconv.Itoa(ciclos), tiempoIni.Format("2006-01-02 15:04:05"), tiempoFinal.Format("2006-01-02 15:04:05"))
+		dato = append(dato, strconv.Itoa(*intercambios), strconv.Itoa(*condicionales), strconv.Itoa(*ciclos), tiempoIni.Format("2006-01-02 15:04:05"), tiempoFinal.Format("2006-01-02 15:04:05"))
 
 		client.Trigger("ArrayChannel", "quickStats", dato)
 		defer wg.Done()

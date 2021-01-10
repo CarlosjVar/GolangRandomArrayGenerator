@@ -107,6 +107,9 @@ func sortingSimulation(c echo.Context) error {
 	insertionChannel := make(chan []int, 1)
 	bubbleChannel := make(chan []int, 1)
 	heapChannel := make(chan []int, 1)
+	ciclosQuick := 0
+	condicionalesQuick := 0
+	intercambiosQuick := 0
 	waitGroup.Add(4)
 	go TempGraficarInsertion(insertionChannel)
 	go InsertionSort(&waitGroup, arr1, insertionChannel) //InsetionSort al segundo Array
@@ -114,7 +117,7 @@ func sortingSimulation(c echo.Context) error {
 	go BubbleSort(&waitGroup, arr2, bubbleChannel) //BubbleSort al primer Array
 	go TempGraficarQuick(quickChannel)
 
-	go QuickSort(&waitGroup, arr3, quickChannel, 0, 0, 0, 0, 0) //InsetionSort al segundo Array
+	go QuickSort(&waitGroup, arr3, quickChannel, 0, 0, &ciclosQuick, &condicionalesQuick, &intercambiosQuick) //InsetionSort al segundo Array
 	go TempGraficarHeap(heapChannel)
 	go heapsort(&waitGroup, arr4, heapChannel)
 
