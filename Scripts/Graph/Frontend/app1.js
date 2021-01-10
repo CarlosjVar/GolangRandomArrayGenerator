@@ -40,26 +40,30 @@ const channel = pusher.subscribe('ArrayChannel');
 
 
 channel.bind("heapStats",data =>{
-  console.log("heap");
-  console.log(data);
-  console.log(intercambio);
+  document.getElementById("heapCondicionales").innerHTML=data[1] 
+  document.getElementById("heapIntercambios").innerHTML=data[0] 
+  document.getElementById("heapRepeticiones").innerHTML=data[2] 
 })
 
 channel.bind("bubbleStats",data =>{
 
-  // console.log("Burbuja");
-  // console.log(data);
+  document.getElementById("bubbleCondicionales").innerHTML=data[1] 
+  document.getElementById("bubbleIntercambios").innerHTML=data[0] 
+  document.getElementById("bubbleRepeticiones").innerHTML=data[2] 
 })
+
 channel.bind("quickStats",data =>{
 
-  console.log("quick");
-  console.log(data);
+  document.getElementById("quickCondicionales").innerHTML=data[1] 
+  document.getElementById("quickIntercambios").innerHTML=data[0] 
+  document.getElementById("quickRepeticiones").innerHTML=data[2] 
 })
 
 channel.bind("insertionStats",data =>{
 
-  // console.log("Insertion");
-  // console.log(data);
+  document.getElementById("insertionCondicionales").innerHTML=data[1] 
+  document.getElementById("insertionIntercambios").innerHTML=data[0] 
+  document.getElementById("insertionRepeticiones").innerHTML=data[2] 
 })
 
 

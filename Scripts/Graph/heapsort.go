@@ -63,12 +63,14 @@ func (m *maxheap) heapify(current int, lenght int, heapChannel chan []int, inter
 	if mayor != current {
 		*intercambios++
 		m.swap(current, mayor)
+		fmt.Print("Delay")
 		posiciones := []int{}
 		posiciones = append(posiciones, current)
 		posiciones = append(posiciones, mayor)
 		heapChannel <- posiciones
 		<-heapChannel
-		time.Sleep(12 * time.Millisecond)
+		fmt.Print("Delay")
+		time.Sleep(30 * time.Millisecond)
 		m.heapify(mayor, lenght, heapChannel, intercambios, condicionales, ciclos)
 	}
 	return
@@ -89,13 +91,15 @@ func (m *maxheap) sort(lenght int, start time.Time, wg *sync.WaitGroup, heapChan
 		*ciclos++
 		// Obtiene la raíz y la "elimina " del heap
 		posiciones := []int{}
+		fmt.Print("Delay")
 		m.swap(0, i)
 		*intercambios++
 		posiciones = append(posiciones, 0)
 		posiciones = append(posiciones, i)
 		heapChannel <- posiciones
 		<-heapChannel
-		time.Sleep(12 * time.Millisecond)
+		fmt.Print("Delay")
+		time.Sleep(30 * time.Millisecond)
 		m.heapify(0, i, heapChannel, intercambios, condicionales, ciclos)
 	}
 
@@ -114,6 +118,7 @@ func (m *maxheap) print() {
 // Función que se encarga del proceso
 func heapsort(wg *sync.WaitGroup, array []int, heapChannel chan []int) {
 	intercambios := 0
+
 	condicionales := 0
 	ciclos := 0
 	start := time.Now()
