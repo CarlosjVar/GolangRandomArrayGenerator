@@ -43,6 +43,8 @@ channel.bind("heapStats",data =>{
   document.getElementById("heapCondicionales").innerHTML=data[1] 
   document.getElementById("heapIntercambios").innerHTML=data[0] 
   document.getElementById("heapRepeticiones").innerHTML=data[2] 
+  document.getElementById("fechaIH").innerHTML = data[3]
+  document.getElementById("fechaFH").innerHTML = data[4]
 })
 
 channel.bind("bubbleStats",data =>{
@@ -50,6 +52,8 @@ channel.bind("bubbleStats",data =>{
   document.getElementById("bubbleCondicionales").innerHTML=data[1] 
   document.getElementById("bubbleIntercambios").innerHTML=data[0] 
   document.getElementById("bubbleRepeticiones").innerHTML=data[2] 
+  document.getElementById("fechaIB").innerHTML = data[3]
+  document.getElementById("fechaFB").innerHTML = data[4]
 })
 
 channel.bind("quickStats",data =>{
@@ -57,6 +61,8 @@ channel.bind("quickStats",data =>{
   document.getElementById("quickCondicionales").innerHTML=data[1] 
   document.getElementById("quickIntercambios").innerHTML=data[0] 
   document.getElementById("quickRepeticiones").innerHTML=data[2] 
+  document.getElementById("fechaIQ").innerHTML = data[3]
+  document.getElementById("fechaFQ").innerHTML = data[4]
 })
 
 channel.bind("insertionStats",data =>{
@@ -64,6 +70,8 @@ channel.bind("insertionStats",data =>{
   document.getElementById("insertionCondicionales").innerHTML=data[1] 
   document.getElementById("insertionIntercambios").innerHTML=data[0] 
   document.getElementById("insertionRepeticiones").innerHTML=data[2] 
+  document.getElementById("fechaII").innerHTML = data[3]
+  document.getElementById("fechaFI").innerHTML = data[4]
 })
 
 
